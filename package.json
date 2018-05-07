@@ -17,6 +17,7 @@
     "ces": "0.0.4",
     "p2": "^0.7.1",
     "pixi.js": "^4.7.3",
+    "retyped-pixi.js-tsd-ambient": "^3.0.9-0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
