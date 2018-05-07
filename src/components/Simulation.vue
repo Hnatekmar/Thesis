@@ -8,9 +8,6 @@ export default {
   name: 'Simulation',
   mounted: function () {
     this.simulation = new Simulation(this.$el)
-  },
-  destroyed: function () {
-    this.simulation.destroy()
   }
 }
 </script>

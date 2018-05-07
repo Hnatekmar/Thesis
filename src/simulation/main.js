@@ -1,5 +1,6 @@
 
-import Graphics from './systems/Graphics.js'
+import GraphicsSystem from './systems/graphics.js'
+import Car from './entities/car.js'
 
 const CES = require('ces')
 
@@ -9,9 +10,10 @@ const CES = require('ces')
 export default class Simulation {
   constructor (canvasElement) {
     this.world = new CES.World()
-    const graphics = new Graphics()
+    const graphics = new GraphicsSystem()
     graphics.setCanvas(canvasElement)
     this.world.addSystem(graphics)
+    this.world.addEntity(Car(150, 150))
     requestAnimationFrame(() => this.update())
   }
 

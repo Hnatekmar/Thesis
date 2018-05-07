@@ -12,6 +12,6 @@ export default CES.Component.extend({
    */
   init: function (objects) {
     this.container = new PIXI.Container()
-    objects.forEach(this.container.addChild)
+    objects.forEach((object) => this.container.addChild(object))
   }
 })

@@ -8,6 +8,11 @@ export default CES.System.extend({
       view: canvas
     })
   },
+  addedToWorld: function (world) {
+    world.entityAdded('graphics').add((entity) => {
+      this.renderer.stage.addChild(entity.getComponent('graphics').container)
+    })
+  },
   update: function (dt) {
     this.renderer.render()
   }
