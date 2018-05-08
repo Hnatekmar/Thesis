@@ -8,6 +8,7 @@ export default CES.System.extend({
       gravity: [0, 0]
     })
     world.entityAdded('physics').add((entity) => this.physicsWorld.addBody(entity.getComponent('physics').body))
+    world.entityAdded('car').add((entity) => entity.getComponent('car').vehicle.addToWorld(this.physicsWorld))
     world.entityRemoved('physics').add((entity) => this.physicsWorld.removeBody(entity.getComponent('physics').body))
   },
   update: function (dt) {
