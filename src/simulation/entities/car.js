@@ -1,7 +1,7 @@
 import * as CES from 'ces'
 import GraphicsComponent from '../components/graphics.js'
 import PhysicsComponent from '../components/physics.js'
-import * as p2 from 'p2'
+import * as Matter from 'matter-js'
 import * as PIXI from 'pixi.js'
 
 function rectangle (x, y, w, h, color) {
@@ -20,14 +20,10 @@ export default function (x, y) {
   graphicsComponent.container.position.set(x, y)
   entity.addComponent(graphicsComponent)
   entity.addComponent(new PhysicsComponent(
-    1,
-    [x, y],
-    [
-      new p2.Box({
-        width: 100,
-        height: 200
-      })
-    ]
+    Matter.Bodies.rectangle(x, y, 100, 200, {
+      velocity: Matter.Vector.create(0, -10),
+      density: 7.8
+    })
   ))
   return entity
 }
