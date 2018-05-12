@@ -2,6 +2,7 @@ import GraphicsSystem from './systems/graphics.js'
 import PhysicsSystem from './systems/physics.js'
 import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
+import Wall from './entities/wall.js'
 
 const CES = require('ces')
 
@@ -17,6 +18,7 @@ export default class Simulation {
     this.world.addSystem(new PhysicsSystem())
     this.world.addSystem(new CarSystem())
     Car(200.0, 550.0, this.world)
+    Wall(0, 0, 10000, 20, this.world)
     requestAnimationFrame((dt) => this.update(dt))
     this.lastDt = 0
   }
