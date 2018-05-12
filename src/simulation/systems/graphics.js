@@ -5,7 +5,8 @@ import * as CES from 'ces'
 export default CES.System.extend({
   setCanvas: function (canvas) {
     this.renderer = new PIXI.Application({
-      view: canvas
+      view: canvas,
+      antialias: true
     })
   },
   addedToWorld: function (world) {

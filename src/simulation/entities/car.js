@@ -16,7 +16,7 @@ function rectangle (x, y, w, h, color) {
 function wheel (x, y, offset, force, range) {
   return {
     body: rectangle(offset.x, offset.y, 10, 20, 0xFFFFFF),
-    angle: 0,
+    angle: Math.PI / 4,
     angleFrom: -range * (Math.PI / 180.0),
     angleTo: range * (Math.PI / 180.0),
     offset: offset,
@@ -38,8 +38,8 @@ export default function (x, y, world) {
     })
   ))
   entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 50, y: 0}, 0.5, 25),
-    wheel(x, y, {x: -5, y: 0}, 0.5, 25),
+    wheel(x, y, {x: 50, y: 0}, 0.1, 45),
+    wheel(x, y, {x: -5, y: 0}, 0.1, 45),
     wheel(x, y, {x: -5, y: 90}, 0.0, 0),
     wheel(x, y, {x: 50, y: 90}, 0.0, 0)
   ]))
