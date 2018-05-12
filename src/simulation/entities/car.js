@@ -38,10 +38,10 @@ export default function (x, y, world) {
     })
   ))
   entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 50, y: 0}, 0.1, 45),
-    wheel(x, y, {x: -5, y: 0}, 0.1, 45),
-    wheel(x, y, {x: -5, y: 90}, 0.0, 0),
-    wheel(x, y, {x: 50, y: 90}, 0.0, 0)
+    wheel(x, y, {x: 100, y: 10}, 0.1, 45),
+    wheel(x, y, {x: -5, y: 10}, 0.1, 45),
+    wheel(x, y, {x: -5, y: 190}, 0.0, 0),
+    wheel(x, y, {x: 100, y: 190}, 0.0, 0)
   ]))
   world.addEntity(entity)
 }

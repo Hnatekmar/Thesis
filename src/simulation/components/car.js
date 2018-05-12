@@ -11,7 +11,7 @@ export default CES.Component.extend({
     const graphics = this.chassis.getComponent('graphics').container
     wheels.forEach((wheel) => {
       graphics.addChild(wheel.body)
-      wheel.body.pivot.set(wheel.offset.x + wheel.width / 2, wheel.offset.y + wheel.height / 2)
+      wheel.body.pivot.set(wheel.offset.x + wheel.body.width / 2, wheel.offset.y + wheel.body.height / 2)
     })
     this.wheels = wheels
   },
