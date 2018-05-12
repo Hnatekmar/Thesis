@@ -16,7 +16,7 @@ export default class Simulation {
     this.world.addSystem(graphics)
     this.world.addSystem(new PhysicsSystem())
     this.world.addSystem(new CarSystem())
-    this.world.addEntity(Car(200.0, -150.0))
+    Car(200.0, 550.0, this.world)
     requestAnimationFrame((dt) => this.update(dt))
     this.lastDt = 0
   }

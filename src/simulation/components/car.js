@@ -1,25 +1,28 @@
 import * as CES from 'ces'
-import * as p2 from 'p2'
 
 /*
  * Component that represents car
  */
 export default CES.Component.extend({
   name: 'car',
-  steering: Math.PI / 16,
   force: 0.5,
   init: function (chassis, wheels) {
-    this.vehicle = new p2.TopDownVehicle(chassis)
-    for (let i = 0; i < wheels.length; i++) {
-      wheels[i].physics = this.vehicle.addWheel(wheels[i].physics)
-      wheels[i].physics.steerValue = -this.steering
-      wheels[i].physics.engineForce = this.force
-    }
+    this.chassis = chassis
+    const graphics = this.chassis.getComponent('graphics').container
+    wheels.forEach((wheel) => {
+      graphics.addChild(wheel.body)
+      wheel.body.pivot.set(wheel.offset.x + wheel.width / 2, wheel.offset.y + wheel.height / 2)
+    })
     this.wheels = wheels
   },
+  getAngle: function (wheel, angle) {
+    if (angle < wheel.angleFrom) angle = wheel.angleFrom
+    if (angle > wheel.angleTo) angle = wheel.angleTo
+    return angle
+  },
   steer: function (angle) {
-    this.wheels.forEach(function (wheel) {
-      wheel.physics.steerValue = -angle
+    this.wheels.forEach((wheel) => {
+      wheel.angle = this.getAngle(wheel, angle)
     })
   }
 })
