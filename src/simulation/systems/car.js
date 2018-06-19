@@ -16,6 +16,10 @@ export default CES.System.extend({
         const globalPosition = wheel.body.toGlobal(wheel.body.position)
         Matter.Body.applyForce(body.chassis.getComponent('physics').body, globalPosition, wheelDirectionVector)
       })
+      const pb = body.chassis.getComponent('physics')
+      body.sensors.forEach(function (sensor) {
+        sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), 0)
+      })
     })
   }
 })

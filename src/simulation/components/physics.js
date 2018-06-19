@@ -4,5 +4,6 @@ export default CES.Component.extend({
   name: 'physics',
   init: function (body) {
     this.body = body
+    this.world = null
   }
 })

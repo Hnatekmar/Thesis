@@ -9,7 +9,10 @@ export default CES.System.extend({
     this.engine.world.gravity.y = 0
     this.runner = Matter.Runner.create()
     Matter.Runner.run(this.runner, this.engine)
-    world.entityAdded('physics').add((entity) => Matter.World.add(this.engine.world, [entity.getComponent('physics').body], true))
+    world.entityAdded('physics').add((entity) => {
+      entity.getComponent('physics').world = this.engine.world
+      Matter.World.add(this.engine.world, [entity.getComponent('physics').body], true)
+    })
     world.entityRemoved('physics').add(
       (entity) => Matter.World.remove(this.engine.world, entity.getComponent('physics').body, true))
   },

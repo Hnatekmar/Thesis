@@ -1,4 +1,6 @@
 import * as CES from 'ces'
+import * as _ from 'lodash'
+import * as ray from '../entities/raySensor'
 
 /*
  * Component that represents car
@@ -7,6 +9,7 @@ export default CES.Component.extend({
   name: 'car',
   force: 0.5,
   init: function (chassis, wheels) {
+    this.sensors = _.range(0, 180).map((el) => new ray.Sensor({x: Math.cos(el * (180 / Math.PI)), y: Math.sin(el * (180 / Math.PI))}))
     this.chassis = chassis
     const graphics = this.chassis.getComponent('graphics').container
     wheels.forEach((wheel) => {
