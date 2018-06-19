@@ -8,12 +8,13 @@ export class Sensor {
     this.shortest = null
   }
   cast (origin, bodies, rotation) {
-    const destination = Matter.Vector.rotate(Matter.Vector.add(origin, this.endPoint), rotation)
-    this.bodies = Matter.Query.ray(bodies, origin, destination, 10000)
+    this.rotatedEndPoint = Matter.Vector.rotate(this.endPoint, rotation)
+    const destination = Matter.Vector.add(origin, this.rotatedEndPoint)
+    this.bodies = Matter.Query.ray(bodies, origin, destination, 100000)
     this.calculateShortest(origin, destination)
   }
   calculateShortest (origin) {
-    const endPoint = this.endPoint
+    const endPoint = this.rotatedEndPoint
     function getDistance (collisionInfo) {
       const vertices = []
       collisionInfo.body.vertices.forEach((point) => {

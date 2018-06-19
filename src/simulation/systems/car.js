@@ -1,5 +1,6 @@
 import * as CES from 'ces'
 import * as Matter from 'matter-js'
+import * as PIXI from 'pixi.js'
 
 // noinspection JSUnusedLocalSymbols
 export default CES.System.extend({
@@ -17,8 +18,20 @@ export default CES.System.extend({
         Matter.Body.applyForce(body.chassis.getComponent('physics').body, globalPosition, wheelDirectionVector)
       })
       const pb = body.chassis.getComponent('physics')
+      if (body.debugDrawer !== null) body.debugDrawer.clear()
       body.sensors.forEach(function (sensor) {
-        sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), 0)
+        sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), pb.body.angle)
+        if (sensor.shortest.distance !== Infinity) {
+          if (body.debugDrawer === null) {
+            body.debugDrawer = new PIXI.Graphics()
+            const parent = body.chassis.getComponent('graphics').container
+            parent.parent.addChild(body.debugDrawer)
+          }
+          body.debugDrawer.lineStyle(1, 0x00FF00)
+          body.debugDrawer.moveTo(pb.body.position.x, pb.body.position.y)
+          body.debugDrawer.lineTo(pb.body.position.x + sensor.rotatedEndPoint.x * sensor.shortest.distance, pb.body.position.y + sensor.rotatedEndPoint.y * sensor.shortest.distance)
+          body.debugDrawer.endFill()
+        }
       })
     })
   }
