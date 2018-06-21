@@ -19,8 +19,12 @@ const createLintingRule = () => ({
   }
 })
 
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 module.exports = {
   context: path.resolve(__dirname, '../'),
+  plugins: [
+    new VueLoaderPlugin()
+  ],
   entry: {
     app: './src/main.js'
   },
