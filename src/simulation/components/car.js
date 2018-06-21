@@ -9,7 +9,7 @@ export default CES.Component.extend({
   name: 'car',
   force: 0.5,
   init: function (chassis, wheels) {
-    this.sensors = _.range(0, 360, 0.5).map((el) => new ray.Sensor({x: Math.cos(el * (180 / Math.PI)), y: Math.sin(el * (180 / Math.PI))}))
+    this.sensors = _.range(180 + 45, 360 - 45, 2.0).map((el) => new ray.Sensor({x: Math.cos(el * (Math.PI / 180)), y: Math.sin(el * (Math.PI / 180))}))
     this.chassis = chassis
     const graphics = this.chassis.getComponent('graphics').container
     this.debugDrawer = null

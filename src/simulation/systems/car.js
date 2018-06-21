@@ -21,6 +21,7 @@ export default CES.System.extend({
       if (body.debugDrawer !== null) body.debugDrawer.clear()
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), pb.body.angle)
+        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 100000
         if (sensor.shortest.distance !== Infinity) {
           if (body.debugDrawer === null) {
             body.debugDrawer = new PIXI.Graphics()
