@@ -4,12 +4,9 @@ import * as PIXI from 'pixi.js'
 
 // noinspection JSUnusedLocalSymbols
 export default CES.System.extend({
-  acc: 0,
   update: function (dt) {
-    this.acc += dt / 2
     this.world.getEntities('car').forEach((entity) => {
       const body = entity.getComponent('car')
-      body.steer(Math.sin(this.acc))
       body.wheels.forEach((wheel) => {
         wheel.body.rotation = wheel.angle
         const wheelUnitVector = Matter.Vector.rotate(wheel.forward, wheel.angle + wheel.body.parent.rotation)
@@ -21,7 +18,7 @@ export default CES.System.extend({
       if (body.debugDrawer !== null) body.debugDrawer.clear()
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), pb.body.angle)
-        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 100000
+        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 1000
         if (sensor.shortest.distance !== Infinity) {
           if (body.debugDrawer === null) {
             body.debugDrawer = new PIXI.Graphics()
@@ -33,7 +30,12 @@ export default CES.System.extend({
           body.debugDrawer.lineTo(pb.body.position.x + sensor.rotatedEndPoint.x * sensor.shortest.distance, pb.body.position.y + sensor.rotatedEndPoint.y * sensor.shortest.distance)
           body.debugDrawer.endFill()
         }
+        body.fitness += pb.body.speed
       })
+
+      const input = body.sensors.map((sensor) => sensor.shortest.distance / 1000)
+      const output = body.genome.activate(input)
+      body.steer((output[0] * 90 - 45) * Math.PI / 180)
     })
   }
 })

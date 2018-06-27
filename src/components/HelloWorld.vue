@@ -7,13 +7,33 @@
 <script>
 
 import Simulation from './Simulation'
+import NEAT from 'neataptic'
 
 export default {
   name: 'HelloWorld',
   components: {Simulation},
+  mounted: async function () {
+    var i = 0
+    while (true) {
+      console.log('Generation: ' + i)
+      await this.$data.neat.evaluate()
+      i += 1
+    }
+  },
   data () {
+    const t = this
     return {
-      msg: 'Welcome to Your Vue.js App'
+      neat: new NEAT.Neat(
+        7,
+        1,
+        async function (genome) {
+          return t.$children[0].simulation.evaluate(genome)
+        },
+        {
+          mutation: NEAT.methods.mutation.ALL,
+          popsize: 20
+        }
+      )
     }
   }
 }

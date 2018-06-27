@@ -10,7 +10,7 @@ export class Sensor {
   cast (origin, bodies, rotation) {
     this.rotatedEndPoint = Matter.Vector.rotate(this.endPoint, rotation)
     const destination = Matter.Vector.add(origin, this.rotatedEndPoint)
-    this.bodies = Matter.Query.ray(bodies, origin, destination, 100000)
+    this.bodies = Matter.Query.ray(bodies, origin, destination, 1000)
     this.calculateShortest(origin, destination)
   }
   calculateShortest (origin) {

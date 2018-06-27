@@ -8,8 +8,9 @@ import * as ray from '../entities/raySensor'
 export default CES.Component.extend({
   name: 'car',
   force: 0.5,
-  init: function (chassis, wheels) {
-    this.sensors = _.range(180 + 45, 360 - 45, 2.0).map((el) => new ray.Sensor({x: Math.cos(el * (Math.PI / 180)), y: Math.sin(el * (Math.PI / 180))}))
+  init: function (chassis, wheels, genome) {
+    this.genome = genome
+    this.sensors = _.range(180 + 45, 360 - 45, 10.0).map((el) => new ray.Sensor({x: Math.cos(el * (Math.PI / 180)), y: Math.sin(el * (Math.PI / 180))}))
     this.chassis = chassis
     const graphics = this.chassis.getComponent('graphics').container
     this.debugDrawer = null
@@ -18,6 +19,7 @@ export default CES.Component.extend({
       wheel.body.pivot.set(wheel.offset.x + wheel.body.width / 2, wheel.offset.y + wheel.body.height / 2)
     })
     this.wheels = wheels
+    this.fitness = 0
   },
   getAngle: function (wheel, angle) {
     if (angle < wheel.angleFrom) angle = wheel.angleFrom
