@@ -25,7 +25,7 @@ function wheel (x, y, offset, force, range) {
   }
 }
 
-export default function (x, y, world) {
+export default function (x, y, world, genome) {
   const entity = new CES.Entity()
   const graphicsComponent = new GraphicsComponent([
     rectangle(0, 0, 100, 200, 0xff0000)
@@ -34,14 +34,16 @@ export default function (x, y, world) {
   entity.addComponent(graphicsComponent)
   entity.addComponent(new PhysicsComponent(
     Matter.Bodies.rectangle(x, y, 100, 200, {
-      density: 0.78
+      density: 0.78,
+      friction: 1.0
     })
   ))
   entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 100, y: 10}, 0.1, 45),
-    wheel(x, y, {x: -5, y: 10}, 0.1, 45),
+    wheel(x, y, {x: 100, y: 10}, 0.2, 45),
+    wheel(x, y, {x: -5, y: 10}, 0.2, 45),
     wheel(x, y, {x: -5, y: 190}, 0.0, 0),
     wheel(x, y, {x: 100, y: 190}, 0.0, 0)
-  ]))
+  ], genome))
   world.addEntity(entity)
+  return entity
 }

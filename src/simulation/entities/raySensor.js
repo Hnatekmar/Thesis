@@ -10,14 +10,14 @@ export class Sensor {
   cast (origin, bodies, rotation) {
     this.rotatedEndPoint = Matter.Vector.rotate(this.endPoint, rotation)
     const destination = Matter.Vector.add(origin, this.rotatedEndPoint)
-    this.bodies = Matter.Query.ray(bodies, origin, destination, 100000)
+    this.bodies = bodies
     this.calculateShortest(origin, destination)
   }
   calculateShortest (origin) {
     const endPoint = this.rotatedEndPoint
     function getDistance (collisionInfo) {
       const vertices = []
-      collisionInfo.body.vertices.forEach((point) => {
+      collisionInfo.vertices.forEach((point) => {
         vertices.push(point.x)
         vertices.push(point.y)
       })
