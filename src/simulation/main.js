@@ -17,17 +17,17 @@ export default class Simulation {
   }
 
   init (canvas) {
-    const graphics = new GraphicsSystem()
-    graphics.setCanvas(canvas)
     if (this.world === undefined) {
+      this.renderer = new GraphicsSystem()
+      this.renderer.setCanvas(canvas)
       this.world = new CES.World()
-      this.world.addSystem(graphics)
+      this.world.addSystem(this.renderer)
       this.world.addSystem(new PhysicsSystem())
       this.world.addSystem(new CarSystem())
     } else {
-      this.world.addSystem(graphics)
+      this.renderer.setCanvas(canvas)
     }
-    this.car = Car(150.0, 500.0, this.world, this.genome)
+    this.car = Car(100.0, 500.0, this.world, this.genome)
     Wall(20, 0, 20, 5000, this.world)
     Wall(190, 0, 20, 5000, this.world)
     this.lastDt = 0
