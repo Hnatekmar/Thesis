@@ -14,8 +14,8 @@ export default {
 
 <style scoped>
 .screen {
-  width: 100%;
-  height: 100%;
+  width: 20%;
+  height: 20%;
   border-style: ridge;
   border-width: 1px;
 }

@@ -28,9 +28,8 @@ export default class Simulation {
       this.world.addSystem(graphics)
     }
     this.car = Car(150.0, 500.0, this.world, this.genome)
-    Wall(500, 20, 1000, 20, this.world)
-    Wall(20, 0, 20, 1000, this.world)
-    Wall(700, 0, 20, 1000, this.world)
+    Wall(20, 0, 20, 5000, this.world)
+    Wall(190, 0, 20, 5000, this.world)
     this.lastDt = 0
   }
 
@@ -58,7 +57,6 @@ export default class Simulation {
     if (this.frames >= 0) {
       requestAnimationFrame((dt) => this.update(dt))
     } else {
-      console.log(this.car.getComponent('car').fitness)
       this.onFinish(this.car.getComponent('car').fitness)
     }
   }

@@ -35,7 +35,7 @@ export default function (x, y, world, genome) {
   entity.addComponent(new PhysicsComponent(
     Matter.Bodies.rectangle(x, y, 100, 200, {
       density: 0.78,
-      friction: 0.9
+      friction: 1.0
     })
   ))
   entity.addComponent(new CarComponent(entity, [
