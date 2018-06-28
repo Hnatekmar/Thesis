@@ -24,14 +24,19 @@ export default {
     const t = this
     return {
       neat: new NEAT.Neat(
-        7,
-        1,
+        8,
+        2,
         async function (genome) {
           return t.$children[0].simulation.evaluate(genome)
         },
         {
           mutation: NEAT.methods.mutation.ALL,
-          popsize: 20
+          popsize: 10 // ,
+          // network: new NEAT.architect.Random(
+          //   8,
+          //   10,
+          //   2
+          // )
         }
       )
     }

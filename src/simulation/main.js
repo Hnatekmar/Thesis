@@ -17,16 +17,20 @@ export default class Simulation {
   }
 
   init (canvas) {
-    this.world = new CES.World()
     const graphics = new GraphicsSystem()
     graphics.setCanvas(canvas)
-    this.world.addSystem(graphics)
-    this.world.addSystem(new PhysicsSystem())
-    this.world.addSystem(new CarSystem())
-    this.car = Car(200.0, 250.0, this.world, this.genome)
-    Wall(0, 20, 1000, 20, this.world)
+    if (this.world === undefined) {
+      this.world = new CES.World()
+      this.world.addSystem(graphics)
+      this.world.addSystem(new PhysicsSystem())
+      this.world.addSystem(new CarSystem())
+    } else {
+      this.world.addSystem(graphics)
+    }
+    this.car = Car(150.0, 500.0, this.world, this.genome)
+    Wall(500, 20, 1000, 20, this.world)
     Wall(20, 0, 20, 1000, this.world)
-    Wall(270, 0, 20, 1000, this.world)
+    Wall(700, 0, 20, 1000, this.world)
     this.lastDt = 0
   }
 
@@ -54,7 +58,6 @@ export default class Simulation {
     if (this.frames >= 0) {
       requestAnimationFrame((dt) => this.update(dt))
     } else {
-      console.log(this.genome)
       console.log(this.car.getComponent('car').fitness)
       this.onFinish(this.car.getComponent('car').fitness)
     }

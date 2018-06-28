@@ -10,7 +10,7 @@ export default CES.System.extend({
       body.wheels.forEach((wheel) => {
         wheel.body.rotation = wheel.angle
         const wheelUnitVector = Matter.Vector.rotate(wheel.forward, wheel.angle + wheel.body.parent.rotation)
-        const wheelDirectionVector = Matter.Vector.mult(wheelUnitVector, wheel.speed)
+        const wheelDirectionVector = Matter.Vector.mult(wheelUnitVector, body.force)
         const globalPosition = wheel.body.toGlobal(wheel.body.position)
         Matter.Body.applyForce(body.chassis.getComponent('physics').body, globalPosition, wheelDirectionVector)
       })
@@ -33,9 +33,11 @@ export default CES.System.extend({
         body.fitness += pb.body.speed
       })
 
-      const input = body.sensors.map((sensor) => sensor.shortest.distance / 1000)
+      const input = body.sensors.map((sensor) => sensor.shortest.distance)
+      input.push(pb.body.speed)
       const output = body.genome.activate(input)
       body.steer((output[0] * 90 - 45) * Math.PI / 180)
+      body.force = output[1] - 0.5
     })
   }
 })
