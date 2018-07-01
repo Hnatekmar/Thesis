@@ -3,6 +3,7 @@ import PhysicsSystem from './systems/physics.js'
 import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
 import Wall from './entities/wall.js'
+require('neataptic/graph/graph.js')
 
 const CES = require('ces')
 
@@ -10,7 +11,8 @@ const CES = require('ces')
  * Main class of simulation
  */
 export default class Simulation {
-  constructor (canvasElement, frames) {
+  constructor (canvasElement, frames, visualizationID) {
+    this.visualizationID = visualizationID
     this.time = frames
     this.frames = frames
     this.canvasElement = canvasElement
@@ -27,9 +29,9 @@ export default class Simulation {
     } else {
       this.renderer.setCanvas(canvas)
     }
-    this.car = Car(100.0, 500.0, this.world, this.genome)
-    Wall(20, 0, 20, 5000, this.world)
-    Wall(190, 0, 20, 5000, this.world)
+    drawGraph(this.genome.graph(800, 600), this.visualizationID)
+    Wall(0, 0, 10000, 10, this.world)
+    this.car = Car(500.0, 250.0, this.world, this.genome)
     this.lastDt = 0
   }
 
@@ -50,10 +52,10 @@ export default class Simulation {
    * Main simulation loop
    */
   update (dt) {
-    this.frames -= 1
     const delta = dt - this.lastDt
-    this.lastDt = dt
+    this.frames -= 1
     this.world.update(delta / 1000.0)
+    this.lastDt = dt
     if (this.frames >= 0) {
       requestAnimationFrame((dt) => this.update(dt))
     } else {
