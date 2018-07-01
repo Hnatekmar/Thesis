@@ -34,14 +34,14 @@ export default function (x, y, world, genome) {
   entity.addComponent(graphicsComponent)
   entity.addComponent(new PhysicsComponent(
     Matter.Bodies.rectangle(x, y, 100, 200, {
-      density: 0.78,
-      friction: 1.0
+      density: 0.90,
+      friction: 0.1
     })
   ))
   entity.addComponent(new CarComponent(entity, [
     wheel(x, y, {x: 100, y: 10}, 0.2, 45),
-    wheel(x, y, {x: -5, y: 10}, 0.2, 45),
-    wheel(x, y, {x: -5, y: 190}, 0.0, 0),
+    wheel(x, y, {x: 0, y: 10}, 0.2, 45),
+    wheel(x, y, {x: 0, y: 190}, 0.0, 0),
     wheel(x, y, {x: 100, y: 190}, 0.0, 0)
   ], genome))
   world.addEntity(entity)
