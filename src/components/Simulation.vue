@@ -1,7 +1,7 @@
 <template>
   <div>
     <canvas class="screen"></canvas>
-    <canvas class="visualization"></canvas>
+    <div class="visualization"></div>
   </div>
 </template>
 
@@ -21,5 +21,9 @@ export default {
   height: 20%;
   border-style: ridge;
   border-width: 1px;
+}
+.visualization {
+  width: 200px;
+  height: 200px;
 }
 </style>
