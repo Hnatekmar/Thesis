@@ -5,17 +5,20 @@ import * as Matter from 'matter-js'
 import * as PIXI from 'pixi.js'
 import CarComponent from '../components/car.js'
 
-function rectangle (x, y, w, h, color) {
-  const result = new PIXI.Graphics()
-  result.beginFill(color, 0.5)
-  result.drawRect(x, y, w, h)
-  result.position.set(x, y)
-  return result
-}
+// function rectangle (x, y, w, h, color) {
+//   const result = new PIXI.Graphics()
+//   result.beginFill(color, 1.0)
+//   result.drawRect(x, y, w, h)
+//   result.position.set(x, y)
+//   result.cacheAsBitmap = true
+//   return result
+// }
 
 function wheel (x, y, offset, force, range) {
+  let wheelRectangle = new PIXI.Sprite(PIXI.loader.resources['/static/wheel.png'].texture)
+  wheelRectangle.position.set(offset.x, offset.y)
   return {
-    body: rectangle(offset.x, offset.y, 10, 20, 0xFFFFFF),
+    body: wheelRectangle,
     angle: Math.PI / 4,
     angleFrom: -range * (Math.PI / 180.0),
     angleTo: range * (Math.PI / 180.0),
@@ -28,7 +31,7 @@ function wheel (x, y, offset, force, range) {
 export default function (x, y, world, genome) {
   const entity = new CES.Entity()
   const graphicsComponent = new GraphicsComponent([
-    rectangle(0, 0, 100, 200, 0xff0000)
+    new PIXI.Sprite(PIXI.loader.resources['/static/chassis.png'].texture)
   ])
   graphicsComponent.container.position.set(x, y)
   entity.addComponent(graphicsComponent)

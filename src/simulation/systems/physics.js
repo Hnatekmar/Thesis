@@ -7,14 +7,14 @@ export default CES.System.extend({
     this.engine = Matter.Engine.create()
     this.engine.world.gravity.x = 0
     this.engine.world.gravity.y = 0
-    this.runner = Matter.Runner.create()
-    Matter.Runner.run(this.runner, this.engine)
     world.entityAdded('physics').add((entity) => {
       entity.getComponent('physics').world = this.engine.world
       Matter.World.add(this.engine.world, [entity.getComponent('physics').body], true)
     })
     world.entityRemoved('physics').add(
-      (entity) => Matter.World.remove(this.engine.world, entity.getComponent('physics').body, true))
+      (entity) => {
+        Matter.World.remove(this.engine.world, entity.getComponent('physics').body, true)
+      })
   },
   update: function (dt) {
     this.world.getEntities('graphics', 'physics').forEach((entity) => {
@@ -23,6 +23,7 @@ export default CES.System.extend({
       graphicsObject.position.set(body.position.x, body.position.y)
       graphicsObject.rotation = body.angle
     })
+
     Matter.Engine.update(this.engine, dt)
   }
 })
