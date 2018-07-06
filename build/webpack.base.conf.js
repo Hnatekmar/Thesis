@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -18,13 +19,32 @@ const createLintingRule = () => ({
     emitWarning: !config.dev.showEslintErrorsInOverlay
   }
 })
-
+let pathsToClean = [
+  'dist',
+  'build'
+]
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 module.exports = {
   context: path.resolve(__dirname, '../'),
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new CleanWebpackPlugin(pathsToClean)
   ],
+  optimization: {
+    namedModules: true,
+    runtimeChunk: "single", // enable "runtime" chunk
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendor",
+          chunks: "all"
+        }
+      }
+    },
+    noEmitOnErrors: true,
+    concatenateModules: true
+  },
   entry: {
     app: './src/main.js'
   },

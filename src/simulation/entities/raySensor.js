@@ -1,5 +1,6 @@
 import * as Matter from 'matter-js'
 import * as PolyK from 'polyk'
+import _ from 'lodash'
 
 export class Sensor {
   constructor (endPoint) {
@@ -16,24 +17,21 @@ export class Sensor {
   calculateShortest (origin) {
     const endPoint = this.rotatedEndPoint
     function getDistance (collisionInfo) {
-      const vertices = []
-      collisionInfo.vertices.forEach((point) => {
-        vertices.push(point.x)
-        vertices.push(point.y)
-      })
-      const result = PolyK.Raycast(vertices, origin.x, origin.y, endPoint.x, endPoint.y)
+      if (collisionInfo.cache === undefined) {
+        collisionInfo.cache = _.toArray(_.flatMap(collisionInfo.vertices, (point) => [point.x, point.y]))
+      }
+      let result = PolyK.Raycast(collisionInfo.cache, origin.x, origin.y, endPoint.x, endPoint.y)
       if (result === null) {
         return {
-          dist: Infinity
+          body: origin,
+          distance: Infinity
         }
       }
-      return result.dist
-    }
-    this.shortest = this.bodies.map(function (body) {
       return {
-        body: body,
-        distance: getDistance(body)
+        body: origin,
+        distance: result
       }
-    }).reduce((acc, el) => el.distance < acc.distance ? el : acc, {distance: Infinity})
+    }
+    this.shortest = this.bodies.map(getDistance).reduce((acc, el) => el.distance < acc.distance ? el : acc, {distance: Infinity})
   }
 }

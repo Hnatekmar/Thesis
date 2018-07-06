@@ -12,24 +12,53 @@ import Simulation from './Simulation'
 import NEAT from 'neataptic'
 import ASYNC from 'async'
 import _ from 'lodash'
+import * as PIXI from 'pixi.js'
 
 export default {
   name: 'HelloWorld',
   components: {Simulation},
   mounted: function () {
     const t = this
+
+    this.neat = new NEAT.Neat(
+      10,
+      2,
+      null,
+      // async function (genome) {
+      //   return t.$children[0].simulation.evaluate(genome)
+      // },
+      {
+        mutation: NEAT.methods.mutation.ALL,
+        popsize: 8 // ,
+        // network: new NEAT.architect.Random(
+        //   8,
+        //   25,
+        //   2
+        // )
+      }
+    )
+
+    function update (dt) {
+      t.$children.forEach((container) => container.simulation.update(dt))
+      requestAnimationFrame(update)
+    }
+
+    PIXI.loader
+      .add('/static/chassis.png')
+      .add('/static/wheel.png')
+      .load()
+
+    requestAnimationFrame(update)
+    const neat = t.neat
+    const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
     ASYNC.forever(
       function (next) {
         // Split to chunks
-        const neat = t.$data.neat
-        const chunks = _.chunk(t.$data.neat.population, neat.population.length / t.$children.length)
-        console.log(chunks.length)
         ASYNC.eachOf(chunks,
           async function (chunk, index, callback) {
             for (let i in chunk) {
               // noinspection JSUnfilteredForInLoop
               chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
-              console.log(chunk[i].score)
             }
             callback()
           },
@@ -61,24 +90,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 8,
-      neat: new NEAT.Neat(
-        8,
-        2,
-        null,
-        // async function (genome) {
-        //   return t.$children[0].simulation.evaluate(genome)
-        // },
-        {
-          mutation: NEAT.methods.mutation.ALL,
-          popsize: 8
-          // network: new NEAT.architect.Random(
-          //   8,
-          //   50,
-          //   2
-          // )
-        }
-      )
+      numberOfEvaluators: 8
     }
   }
 }

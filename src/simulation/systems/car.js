@@ -1,6 +1,6 @@
 import * as CES from 'ces'
 import * as Matter from 'matter-js'
-import * as PIXI from 'pixi.js'
+// import * as PIXI from 'pixi.js'
 
 // noinspection JSUnusedLocalSymbols
 export default CES.System.extend({
@@ -19,17 +19,17 @@ export default CES.System.extend({
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.body.position, pb.world.bodies.filter((body) => body.id !== pb.body.id), pb.body.angle)
         if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 1000
-        if (sensor.shortest.distance !== Infinity) {
-          if (body.debugDrawer === null) {
-            body.debugDrawer = new PIXI.Graphics()
-            const parent = body.chassis.getComponent('graphics').container
-            parent.parent.addChild(body.debugDrawer)
-          }
-          body.debugDrawer.lineStyle(1, 0x00FF00)
-          body.debugDrawer.moveTo(pb.body.position.x, pb.body.position.y)
-          body.debugDrawer.lineTo(pb.body.position.x + sensor.rotatedEndPoint.x * sensor.shortest.distance, pb.body.position.y + sensor.rotatedEndPoint.y * sensor.shortest.distance)
-          body.debugDrawer.endFill()
-        }
+        // if (sensor.shortest.distance !== Infinity) {
+        //   if (body.debugDrawer === null) {
+        //     body.debugDrawer = new PIXI.Graphics()
+        //     const parent = body.chassis.getComponent('graphics').container
+        //     parent.parent.addChild(body.debugDrawer)
+        //   }
+        //   body.debugDrawer.lineStyle(1, 0x00FF00)
+        //   body.debugDrawer.moveTo(pb.body.position.x, pb.body.position.y)
+        //   body.debugDrawer.lineTo(pb.body.position.x + sensor.rotatedEndPoint.x * sensor.shortest.distance, pb.body.position.y + sensor.rotatedEndPoint.y * sensor.shortest.distance)
+        //   body.debugDrawer.endFill()
+        // }
         body.fitness += pb.body.speed
       })
 
