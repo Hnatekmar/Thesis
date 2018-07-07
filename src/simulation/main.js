@@ -2,7 +2,7 @@ import GraphicsSystem from './systems/graphics.js'
 import PhysicsSystem from './systems/physics.js'
 import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
-// import Wall from './entities/wall.js'
+import Wall from './entities/wall.js'
 import Sigma from 'sigma'
 // import Chart from 'chart.js'
 // import _ from 'lodash'
@@ -53,9 +53,9 @@ export default class Simulation {
       this.world.addSystem(new CarSystem())
     }
     // this.drawGenome()
-    // Wall(0, 0, 10000, 10, this.world)
-    // Wall(0, 0, 10, 10000, this.world)
-    // Wall(700, 0, 10, 10000, this.world)
+    Wall(0, 0, 10000, 10, this.world)
+    Wall(0, 0, 10, 10000, this.world)
+    Wall(700, 0, 10, 10000, this.world)
     this.car = Car(500.0, 250.0, this.world, this.genome)
     this.lastDt = 0
   }

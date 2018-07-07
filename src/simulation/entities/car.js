@@ -15,7 +15,7 @@ import CarComponent from '../components/car.js'
 // }
 
 function wheel (x, y, offset, force, range) {
-  let wheelRectangle = new PIXI.Sprite(PIXI.loader.resources['/static/wheel.png'].texture)
+  let wheelRectangle = new PIXI.Sprite(PIXI.loader.resources['./static/wheel.png'].texture)
   wheelRectangle.position.set(offset.x, offset.y)
   return {
     body: wheelRectangle,
@@ -31,7 +31,7 @@ function wheel (x, y, offset, force, range) {
 export default function (x, y, world, genome) {
   const entity = new CES.Entity()
   const graphicsComponent = new GraphicsComponent([
-    new PIXI.Sprite(PIXI.loader.resources['/static/chassis.png'].texture)
+    new PIXI.Sprite(PIXI.loader.resources['./static/chassis.png'].texture)
   ])
   graphicsComponent.container.position.set(x, y)
   entity.addComponent(graphicsComponent)
@@ -42,10 +42,10 @@ export default function (x, y, world, genome) {
     })
   ))
   entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 100, y: 10}, 0.2, 45),
-    wheel(x, y, {x: 0, y: 10}, 0.2, 45),
-    wheel(x, y, {x: 0, y: 190}, 0.0, 0),
-    wheel(x, y, {x: 100, y: 190}, 0.0, 0)
+    wheel(x, y, {x: 100, y: 0}, 0.2, 45),
+    wheel(x, y, {x: -0, y: 0}, 0.2, 45),
+    wheel(x, y, {x: -10, y: 180}, 0.0, 0),
+    wheel(x, y, {x: 100, y: 180}, 0.0, 0)
   ], genome))
   world.addEntity(entity)
   return entity
