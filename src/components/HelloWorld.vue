@@ -44,8 +44,8 @@ export default {
     }
 
     PIXI.loader
-      .add('/static/chassis.png')
-      .add('/static/wheel.png')
+      .add('./static/chassis.png')
+      .add('./static/wheel.png')
       .load()
 
     requestAnimationFrame(update)

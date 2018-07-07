@@ -29,7 +29,7 @@ export class Sensor {
       }
       return {
         body: origin,
-        distance: result
+        distance: result.dist
       }
     }
     this.shortest = this.bodies.map(getDistance).reduce((acc, el) => el.distance < acc.distance ? el : acc, {distance: Infinity})

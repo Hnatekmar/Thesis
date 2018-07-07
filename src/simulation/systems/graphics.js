@@ -7,7 +7,7 @@ export default CES.System.extend({
     if (this.renderer !== undefined) return
     this.renderer = new PIXI.Application({
       view: canvas,
-      antialias: false
+      antialias: true
     })
     this.canvas = canvas
   },
