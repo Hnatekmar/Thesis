@@ -1,9 +1,5 @@
 <template>
-  <div>
     <canvas class="screen"></canvas>
-    <div class="visualization"></div>
-    <canvas></canvas>
-  </div>
 </template>
 
 <script>
@@ -11,7 +7,7 @@ import Simulation from '../simulation/main.js'
 export default {
   name: 'Simulation',
   mounted: function () {
-    this.simulation = new Simulation(this.$el.children[0], 10 * 60, this.$el.children[1], this.$el.children[2])
+    this.simulation = new Simulation(this.$el, 10 * 60)
   }
 }
 </script>

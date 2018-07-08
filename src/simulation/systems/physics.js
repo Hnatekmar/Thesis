@@ -1,29 +1,42 @@
 import * as CES from 'ces'
-import * as Matter from 'matter-js'
+import * as p2 from 'p2'
 
 export default CES.System.extend({
   addedToWorld: function (world) {
     this._super(world)
-    this.engine = Matter.Engine.create()
-    this.engine.world.gravity.x = 0
-    this.engine.world.gravity.y = 0
+    // this.engine = Matter.Engine.create()
+    // this.engine.b2World.gravity.x = 0
+    // this.engine.b2World.gravity.y = 0
+
+    this.p2World = new p2.World({
+      gravity: [0, 0]
+    })
+
     world.entityAdded('physics').add((entity) => {
-      entity.getComponent('physics').world = this.engine.world
-      Matter.World.add(this.engine.world, [entity.getComponent('physics').body], true)
+      let physicsComponent = entity.getComponent('physics')
+      physicsComponent.world = this.p2World
+      this.p2World.addBody(physicsComponent.body)
     })
     world.entityRemoved('physics').add(
       (entity) => {
-        Matter.World.remove(this.engine.world, entity.getComponent('physics').body, true)
+        this.p2World.removeBody(entity.getComponent('physics').body)
+        // Matter.World.remove(this.engine.b2World, entity.getComponent('physics').body, true)
       })
+    this.maximumStep = 60
   },
   update: function (dt) {
+    // let acc = 0
+    this.p2World.step(1 / 60, dt / 1000, 10)
     this.world.getEntities('graphics', 'physics').forEach((entity) => {
       const body = entity.getComponent('physics').body
+      const position = body.position
       const graphicsObject = entity.getComponent('graphics').container
-      graphicsObject.position.set(body.position.x, body.position.y)
+      graphicsObject.position.set(position[0], position[1])
       graphicsObject.rotation = body.angle
     })
-
-    Matter.Engine.update(this.engine, dt)
+    // while (acc < dt) {
+    //   acc += this.maximumStep
+    //   // Matter.Engine.update(this.engine, this.maximumStep)
+    // }
   }
 })
