@@ -4,9 +4,7 @@ import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
 import Wall from './entities/wall.js'
 import Sigma from 'sigma'
-// import Chart from 'chart.js'
-// import _ from 'lodash'
-require('neataptic/graph/graph.js')
+// const MemoryPool = require('memorypool')
 
 const CES = require('ces')
 
@@ -14,49 +12,31 @@ const CES = require('ces')
  * Main class of simulation
  */
 export default class Simulation {
-  constructor (canvasElement, frames, visualizationID, chartCanvas) {
+  constructor (canvasElement, frames, visualizationID) {
     this.visualizationID = visualizationID
     this.time = frames
     this.frames = frames
     this.canvasElement = canvasElement
-    this.chartCanvas = chartCanvas
   }
 
   init (canvas) {
     if (this.world === undefined) {
-      // this.chart = new Chart(this.chartCanvas,
-      //   {
-      //     type: 'line',
-      //     data: {
-      //       datasets: [{
-      //         label: 'fitness',
-      //         data: []
-      //       }]
-      //     },
-      //     options: {
-      //       scales: {
-      //         yAxes: [{
-      //           ticks: {
-      //             beginAtZero: true
-      //           }
-      //         }]
-      //       },
-      //       animation: false
-      //     }
-      //   })
-      // this.chart.data.labels = _.toArray(_.range(0, this.time, 10))
       this.renderer = new GraphicsSystem()
       this.renderer.setCanvas(canvas)
       this.world = new CES.World()
       this.world.addSystem(this.renderer)
-      this.world.addSystem(new PhysicsSystem())
+      this.physicsSystem = new PhysicsSystem()
+      this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
+      // this.drawGenome()
+      Wall(0, 0, 10000, 10, this.world)
+      Wall(0, 0, 10, 10000, this.world)
+      Wall(700, 0, 10, 500, this.world)
+      Wall(250, 500, 500, 10, this.world)
+      this.car = Car(500.0, 250.0, this.world, this.genome)
+    } else {
+      this.car.getComponent('car').genome = this.genome
     }
-    // this.drawGenome()
-    Wall(0, 0, 10000, 10, this.world)
-    Wall(0, 0, 10, 10000, this.world)
-    Wall(700, 0, 10, 10000, this.world)
-    this.car = Car(500.0, 250.0, this.world, this.genome)
     this.lastDt = 0
   }
 
@@ -138,14 +118,7 @@ export default class Simulation {
     let currentFitness = this.car.getComponent('car').fitness
     if (this.frames >= 0) {
       this.world.update(delta)
-      // requestAnimationFrame((dt) => this.update(dt))
-      // if (this.frames % 10 === 0) {
-      //   // this.chart.data.datasets[0].data.push(currentFitness)
-      //   // this.chart.update()
-      // }
     } else {
-      // delete this.chart.data.datasets[0].data
-      // this.chart.data.datasets[0].data = []
       this.onFinish(currentFitness)
     }
   }
@@ -155,8 +128,25 @@ export default class Simulation {
    */
   destroy () {
     if (this.world !== undefined) {
-      const allEntities = this.world.getEntities()
-      allEntities.forEach((entity) => this.world.removeEntity(entity))
+      // let physicsBody = this.car.getComponent('physics').body
+      // Matter.Body.setAngle(physicsBody, 0)
+      // Matter.Body.setAngularVelocity(physicsBody, 0)
+      // Matter.Body.setVelocity(physicsBody, this.velocity)
+      // Matter.Body.setPosition(physicsBody, this.position)
+      this.car.getComponent('car').fitness = 0
+      let body = this.car.getComponent('physics').body
+      body.position = [this.position[0], this.position[1]]
+      body.angularVelocity = 0
+      body.velocity = [0, 0]
+      body.angle = 0
+      body.setZeroForce()
+      // let entities = this.b2World.getEntities()
+      // entities.forEach((entity) => this.b2World.removeEntity(entity))
+      // Matter.World.clear(this.physicsSystem.engine.b2World)
+      // Matter.Engine.clear(this.physicsSystem.engine)
+    } else {
+      this.position = [500, 250]
+      this.velocity = [0, 0]
     }
   }
 }

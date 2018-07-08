@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <canvas id="chart"></canvas>
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
     </span>
@@ -13,12 +14,25 @@ import NEAT from 'neataptic'
 import ASYNC from 'async'
 import _ from 'lodash'
 import * as PIXI from 'pixi.js'
+import * as Chart from 'chart.js'
 
 export default {
   name: 'HelloWorld',
   components: {Simulation},
   mounted: function () {
-    const t = this
+    let chartCanvas = document.getElementById('chart').getContext('2d')
+    this.chart = new Chart(chartCanvas, {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: 'Fitness',
+          data: []
+        }]
+      },
+      options: {
+        animation: false
+      }
+    })
 
     this.neat = new NEAT.Neat(
       10,
@@ -29,68 +43,77 @@ export default {
       // },
       {
         mutation: NEAT.methods.mutation.ALL,
-        popsize: 8 // ,
+        popsize: 16 // ,
         // network: new NEAT.architect.Random(
-        //   8,
-        //   25,
+        //   10,
+        //   100,
         //   2
         // )
       }
     )
 
-    function update (dt) {
-      t.$children.forEach((container) => container.simulation.update(dt))
+    console.log('Loading assets')
+    const t = this
+    const afterLoad = function () {
+      console.log('Loaded')
+      function update (dt) {
+        t.$children.forEach((container) => container.simulation.update(dt))
+        requestAnimationFrame(update)
+      }
       requestAnimationFrame(update)
+      const neat = t.neat
+      ASYNC.forever(
+        function (next) {
+          // Split to chunks
+          const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
+          ASYNC.eachOf(chunks,
+            async function (chunk, index, callback) {
+              for (let i in chunk) {
+                // noinspection JSUnfilteredForInLoop
+                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+              }
+              callback()
+            },
+            function () {
+              neat.sort()
+
+              // From https://wagenaartje.github.io/neataptic/docs/neat/
+              let newPopulation = []
+
+              t.chart.data.labels.push(neat.generation)
+              t.chart.data.datasets[0].data.push(neat.population[0].score)
+              t.chart.update()
+              // Elitism
+              for (let i = 0; i < neat.elitism; i++) {
+                newPopulation.push(neat.population[i])
+              }
+
+              // Breed the next individuals
+              for (let i = 0; i < neat.popsize - neat.elitism; i++) {
+                newPopulation.push(neat.getOffspring())
+              }
+              delete neat.population
+              // Replace the old population with the new population
+              neat.population = newPopulation
+              neat.mutate()
+
+              neat.generation++
+              next()
+            })
+        }
+      )
     }
+
+    PIXI.loader.onComplete.add(afterLoad)
 
     PIXI.loader
       .add('./static/chassis.png')
       .add('./static/wheel.png')
       .load()
-
-    requestAnimationFrame(update)
-    const neat = t.neat
-    const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
-    ASYNC.forever(
-      function (next) {
-        // Split to chunks
-        ASYNC.eachOf(chunks,
-          async function (chunk, index, callback) {
-            for (let i in chunk) {
-              // noinspection JSUnfilteredForInLoop
-              chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
-            }
-            callback()
-          },
-          function () {
-            neat.sort()
-
-            // From https://wagenaartje.github.io/neataptic/docs/neat/
-            let newPopulation = []
-
-            // Elitism
-            for (let i = 0; i < neat.elitism; i++) {
-              newPopulation.push(neat.population[i])
-            }
-
-            // Breed the next individuals
-            for (let i = 0; i < neat.popsize - neat.elitism; i++) {
-              newPopulation.push(neat.getOffspring())
-            }
-
-            // Replace the old population with the new population
-            neat.population = newPopulation
-            neat.mutate()
-
-            neat.generation++
-            next()
-          })
-      }
-    )
   },
   data () {
     return {
-      numberOfEvaluators: 8
+      numberOfEvaluators: 16
     }
   }
 }
@@ -111,5 +134,11 @@ li {
 }
 a {
   color: #42b983;
+}
+#chart {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  width: 90%;
 }
 </style>
