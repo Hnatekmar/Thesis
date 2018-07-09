@@ -38,7 +38,7 @@ export default function (x, y, world, genome) {
   ])
   entity.addComponent(graphicsComponent)
   let body = new p2.Body({
-    mass: 1,
+    mass: 500,
     position: [x, y],
     allowSleep: false
   })

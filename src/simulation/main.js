@@ -100,7 +100,8 @@ export default class Simulation {
     this.destroy()
     this.genome = genome
     this.init(this.canvasElement)
-    this.frames = this.time
+    this.acc = 0
+    this.lastDt = null
     let t = this
     return new Promise(
       function (resolve) {
@@ -112,11 +113,12 @@ export default class Simulation {
    * Main simulation loop
    */
   update (dt) {
+    if (this.lastDt === null) this.lastDt = dt
     const delta = dt - this.lastDt
-    this.frames -= 1
     this.lastDt = dt
+    this.acc += delta / 1000
     let currentFitness = this.car.getComponent('car').fitness
-    if (this.frames >= 0) {
+    if (this.acc < this.time) {
       this.world.update(delta)
     } else {
       this.onFinish(currentFitness)
@@ -135,11 +137,11 @@ export default class Simulation {
       // Matter.Body.setPosition(physicsBody, this.position)
       this.car.getComponent('car').fitness = 0
       let body = this.car.getComponent('physics').body
+      body.setZeroForce()
       body.position = [this.position[0], this.position[1]]
       body.angularVelocity = 0
       body.velocity = [0, 0]
       body.angle = 0
-      body.setZeroForce()
       // let entities = this.b2World.getEntities()
       // entities.forEach((entity) => this.b2World.removeEntity(entity))
       // Matter.World.clear(this.physicsSystem.engine.b2World)

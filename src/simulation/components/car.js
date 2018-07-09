@@ -5,17 +5,16 @@ import * as CES from 'ces'
  */
 export default CES.Component.extend({
   name: 'car',
-  force: 0.5,
+  force: 0.0,
   init: function (chassis, wheels, genome) {
     this.genome = genome
     this.chassis = chassis
-    const graphics = this.chassis.getComponent('graphics').container
     this.debugDrawer = null
-    wheels.forEach((wheel) => {
-      graphics.addChild(wheel.body)
-      // wheel.body.pivot.set(wheel.offset.x + wheel.body.width / 2, wheel.offset.y + wheel.body.height / 2)
-    })
-    this.wheels = wheels
+    // wheels.forEach((wheel) => {
+    //   graphics.addChild(wheel.body)
+    //   // wheel.body.pivot.set(wheel.offset.x + wheel.body.width / 2, wheel.offset.y + wheel.body.height / 2)
+    // })
+    // this.wheels = wheels
     this.fitness = 0
   },
   getAngle: function (wheel, angle) {
