@@ -35,7 +35,7 @@ export default {
     })
 
     this.neat = new NEAT.Neat(
-      10,
+      9,
       2,
       null,
       // async function (genome) {
@@ -43,7 +43,7 @@ export default {
       // },
       {
         mutation: NEAT.methods.mutation.ALL,
-        popsize: 16 // ,
+        popsize: 8 // ,
         // network: new NEAT.architect.Random(
         //   10,
         //   100,
@@ -113,7 +113,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 16
+      numberOfEvaluators: 8
     }
   }
 }

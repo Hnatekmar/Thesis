@@ -20,13 +20,11 @@ export default CES.System.extend({
     world.entityRemoved('physics').add(
       (entity) => {
         this.p2World.removeBody(entity.getComponent('physics').body)
-        // Matter.World.remove(this.engine.b2World, entity.getComponent('physics').body, true)
       })
-    this.maximumStep = 60
   },
   update: function (dt) {
     // let acc = 0
-    this.p2World.step(1 / 60, dt / 1000, 10)
+    this.p2World.step(1 / 60, dt / 1000, 5)
     this.world.getEntities('graphics', 'physics').forEach((entity) => {
       const body = entity.getComponent('physics').body
       const position = body.position
