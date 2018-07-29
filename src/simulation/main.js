@@ -33,7 +33,8 @@ export default class Simulation {
       Wall(0, 0, 10, 10000, this.world)
       Wall(700, 0, 10, 500, this.world)
       Wall(250, 500, 500, 10, this.world)
-      this.car = Car(500.0, 250.0, this.world, this.genome)
+      Wall(500, 500, 10, 600, this.world)
+      this.car = Car(150.0, 250.0, this.world, this.genome)
     } else {
       this.car.getComponent('car').genome = this.genome
     }
@@ -147,7 +148,7 @@ export default class Simulation {
       // Matter.World.clear(this.physicsSystem.engine.b2World)
       // Matter.Engine.clear(this.physicsSystem.engine)
     } else {
-      this.position = [500, 250]
+      this.position = [150, 250]
       this.velocity = [0, 0]
     }
   }

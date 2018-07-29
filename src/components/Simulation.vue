@@ -7,7 +7,7 @@ import Simulation from '../simulation/main.js'
 export default {
   name: 'Simulation',
   mounted: function () {
-    this.simulation = new Simulation(this.$el, 20)
+    this.simulation = new Simulation(this.$el, 25)
   }
 }
 </script>
