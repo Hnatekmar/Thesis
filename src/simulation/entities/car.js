@@ -7,15 +7,6 @@ import CarComponent from '../components/car.js'
 import * as _ from 'lodash'
 import * as ray from '../entities/raySensor'
 
-// function rectangle (x, y, w, h, color) {
-//   const result = new PIXI.Graphics()
-//   result.beginFill(color, 1.0)
-//   result.drawRect(x, y, w, h)
-//   result.position.set(x, y)
-//   result.cacheAsBitmap = true
-//   return result
-// }
-
 function wheel (x, y, offset, force, range) {
   let wheelRectangle = new PIXI.Sprite(PIXI.loader.resources['./static/wheel.png'].texture)
   wheelRectangle.position.set(offset.x, offset.y)
@@ -38,7 +29,7 @@ export default function (x, y, world, genome) {
   ])
   entity.addComponent(graphicsComponent)
   let body = new p2.Body({
-    mass: 500,
+    mass: 2000,
     position: [x, y],
     allowSleep: false
   })

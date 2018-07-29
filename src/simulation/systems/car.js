@@ -1,5 +1,7 @@
 import * as CES from 'ces'
 import * as p2 from 'p2'
+import * as PIXI from 'pixi.js'
+
 // import * as Matter from 'matter-js'
 
 // noinspection JSUnusedLocalSymbols
@@ -24,15 +26,28 @@ export default CES.System.extend({
         if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 10000
       })
 
+      let graphicsChassis = body.chassis.getComponent('graphics').container
+      if (graphicsChassis.debug === undefined) {
+        graphicsChassis.debug = new PIXI.Graphics()
+        graphicsChassis.addChild(graphicsChassis.debug)
+      }
+
       body.fitness += p2.vec2.squaredLength(pb.velocity)
       const input = body.sensors.map((sensor) => sensor.shortest.distance / 10000)
       const output = body.genome.activate(input)
       let rotation = [0, 0]
+      // output[0] = 0
+      // output[1] = 1
       body.force = output[1] * 1000 - 500
       p2.vec2.rotate(rotation, [0, -1], (output[0] * 90 - 45) * Math.PI / 180)
-      p2.vec2.mul(rotation, rotation, [body.force, body.force])
-      pb.applyImpulse(rotation, [0, -100])
-      // body.steer((output[0] * 90 - 45) * Math.PI / 180)
+      // p2.vec2.rotate(rotation, rotation, pb.angle)
+      let out = [0, 0]
+      p2.vec2.mul(out, rotation, [body.force, body.force])
+      graphicsChassis.debug.clear()
+      graphicsChassis.debug.lineStyle(10, 0xffffff)
+        .moveTo(50, 0)
+        .lineTo(out[0], out[1])
+      pb.applyImpulseLocal(out, [0, -100])
     })
   }
 })
