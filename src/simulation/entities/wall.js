@@ -33,4 +33,5 @@ export default function (x, y, w, h, world) {
     // })
   ))
   world.addEntity(entity)
+  return entity
 }
