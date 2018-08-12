@@ -7,21 +7,6 @@ import CarComponent from '../components/car.js'
 import * as _ from 'lodash'
 import * as ray from '../entities/raySensor'
 
-function wheel (x, y, offset, force, range) {
-  let wheelRectangle = new PIXI.Sprite(PIXI.loader.resources['./static/wheel.png'].texture)
-  wheelRectangle.position.set(offset.x, offset.y)
-  return {
-    body: wheelRectangle,
-    angle: Math.PI / 4,
-    angleFrom: -range * (Math.PI / 180.0),
-    angleTo: range * (Math.PI / 180.0),
-    offset: offset,
-    speed: 0.0,
-    maximumSpeed: force,
-    forward: [0, -1]
-  }
-}
-
 export default function (x, y, world, genome) {
   const entity = new CES.Entity()
   const graphicsComponent = new GraphicsComponent([
@@ -39,16 +24,8 @@ export default function (x, y, world, genome) {
   }))
   entity.addComponent(new PhysicsComponent(
     body
-    // Matter.Bodies.rectangle(x, y, 100, 200, {
-    //   density: 0.90,
-    //   friction: 0.1
-    // })
   ))
   entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 100, y: 0}, 1000, 45),
-    wheel(x, y, {x: -0, y: 0}, 1000, 45),
-    wheel(x, y, {x: -10, y: 180}, 0.0, 0),
-    wheel(x, y, {x: 100, y: 180}, 0.0, 0)
   ], genome))
   world.addEntity(entity)
   let carComponent = entity.getComponent('car')
