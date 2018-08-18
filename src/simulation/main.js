@@ -5,7 +5,6 @@ import Car from './entities/car.js'
 import Wall from './entities/wall.js'
 import RoadPart from './entities/roadPart.js'
 import Sigma from 'sigma'
-// const MemoryPool = require('memorypool')
 
 const CES = require('ces')
 
@@ -38,6 +37,7 @@ export default class Simulation {
         Wall(500, 500, 10, 600, this.world)
       ]
       this.road = RoadPart(0, 0, this.world, walls)
+      this.road.move(200, 0)
       this.car = Car(150.0, 250.0, this.world, this.genome)
     } else {
       this.car.getComponent('car').genome = this.genome
