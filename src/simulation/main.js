@@ -2,8 +2,7 @@ import GraphicsSystem from './systems/graphics.js'
 import PhysicsSystem from './systems/physics.js'
 import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
-import Wall from './entities/wall.js'
-import RoadPart from './entities/roadPart.js'
+import RoadDirector from './systems/roadDirector.js'
 import Sigma from 'sigma'
 
 const CES = require('ces')
@@ -15,7 +14,6 @@ export default class Simulation {
   constructor (canvasElement, frames, visualizationID) {
     this.visualizationID = visualizationID
     this.time = frames
-    this.frames = frames
     this.canvasElement = canvasElement
   }
 
@@ -29,16 +27,11 @@ export default class Simulation {
       this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
       // this.drawGenome()
-      let walls = [
-        Wall(0, 0, 10000, 10, this.world),
-        Wall(0, 0, 10, 10000, this.world),
-        Wall(700, 0, 10, 500, this.world),
-        Wall(250, 500, 500, 10, this.world),
-        Wall(500, 500, 10, 600, this.world)
-      ]
-      this.road = RoadPart(0, 0, this.world, walls)
-      this.road.move(200, 0)
       this.car = Car(150.0, 250.0, this.world, this.genome)
+      this.roadDirector = new RoadDirector()
+      this.roadDirector.setWorld(this.world)
+      this.roadDirector.setCar(this.car)
+      this.world.addSystem(this.roadDirector)
     } else {
       this.car.getComponent('car').genome = this.genome
     }
