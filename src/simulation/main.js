@@ -27,7 +27,7 @@ export default class Simulation {
       this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
       // this.drawGenome()
-      this.car = Car(150.0, 250.0, this.world, this.genome)
+      this.car = Car(450.0, 600.0, this.world, this.genome)
       this.roadDirector = new RoadDirector()
       this.roadDirector.setWorld(this.world)
       this.roadDirector.setCar(this.car)
@@ -140,12 +140,13 @@ export default class Simulation {
       body.angularVelocity = 0
       body.velocity = [0, 0]
       body.angle = 0
+      this.roadDirector.reset()
       // let entities = this.b2World.getEntities()
       // entities.forEach((entity) => this.b2World.removeEntity(entity))
       // Matter.World.clear(this.physicsSystem.engine.b2World)
       // Matter.Engine.clear(this.physicsSystem.engine)
     } else {
-      this.position = [150, 250]
+      this.position = [450, 600]
       this.velocity = [0, 0]
     }
   }
