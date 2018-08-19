@@ -1,6 +1,7 @@
 import * as CES from 'ces'
 import Wall from '../entities/wall.js'
 import RoadPart from '../entities/roadPart.js'
+import Chance from 'chance'
 
 function getDirection (x, y, w, h) {
   if (x >= w) return 'right'
@@ -13,6 +14,8 @@ function getDirection (x, y, w, h) {
 export default CES.System.extend({
   setWorld: function (world) {
     this.world = world
+    this.rng = new Chance('RNG0,0')
+    this.position = [0, 0]
     this.parts = {
       'T': {
         'group': RoadPart(0, 0, this.world, [
@@ -41,7 +44,7 @@ export default CES.System.extend({
           Wall(550, 700, 20, 400, this.world)
         ]),
         'possibleParts': {
-          'up': ['Cross', 'T'],
+          'up': ['Cross'],
           'down': ['Cross', 'T'],
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
@@ -73,14 +76,23 @@ export default CES.System.extend({
     if (this.currentPart === undefined) return
     let possiblePieces = this.currentPart['possibleParts'][direction]
     if (possiblePieces.length === 0) return
-    this.currentPart['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
-    this.currentPart = this.parts[possiblePieces[Math.floor(Math.random() * possiblePieces.length)]]
+    this.currentPart['group'].moveAbsolute(50000, 50000)
+    if (this.position[0] === 0 && this.position[1] === 0) {
+      this.currentPart = this.parts['Cross']
+    } else {
+      this.currentPart = this.parts[this.rng.pickone(possiblePieces)]
+    }
     this.currentPart['group'].moveAbsolute(0, 0)
+    if (direction === 'up') this.position[1] += 1
+    if (direction === 'down') this.position[1] -= 1
+    if (direction === 'left') this.position[0] -= 1
+    if (direction === 'right') this.position[0] += 1
+    this.rng = new Chance('RNG' + this.position[0] + ',' + this.position[1])
     this.moveCarBackToScreen(direction)
   },
   moveCarBackToScreen: function (direction) {
     let body = this.car.getComponent('physics').body
-    this.car.getComponent('car').fitness *= 1.2
+    this.car.getComponent('car').fitness += 500
     let newPos = [0, 0]
     if (direction === 'up') {
       newPos = [body.position[0], 0]

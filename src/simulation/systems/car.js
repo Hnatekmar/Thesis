@@ -9,17 +9,17 @@ export default CES.System.extend({
   update: function (dt) {
     this.world.getEntities('car').forEach((entity) => {
       const body = entity.getComponent('car')
-      // body.wheels.forEach((wheel) => {
-      //   wheel.body.rotation = wheel.angle
-      //   const wheelUnitVector = [0, 0]
-      //   p2.vec2.rotate(wheelUnitVector, wheel.forward, wheel.angle)
-      //   const wheelDirectionVector = [0, 0]
-      //   p2.vec2.mul(wheelDirectionVector, wheelUnitVector, [body.force, body.force])
-      //   body.chassis.getComponent('physics').body.applyImpulse(wheelDirectionVector, [wheel.offset.x, wheel.offset.y])
-      //   // const globalPosition = wheel.body.toGlobal(wheel.body.position)
-      //   // Matter.Body.applyForce(body.chassis.getComponent('physics').body, globalPosition, wheelDirectionVector)
-      // })
+
       const pb = body.chassis.getComponent('physics').body
+      pb.world.on('beginContact', (event) => {
+        let bodyA = event.bodyA
+        let bodyB = event.bodyB
+        if ((bodyA.id === pb.id) || (bodyB.id === pb.id)) {
+          pb.allowSleep = true
+          pb.force = [0, 0]
+          pb.sleep()
+        }
+      })
       if (body.debugDrawer !== null) body.debugDrawer.clear()
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.position, [pb.id], pb.angle)
@@ -32,15 +32,16 @@ export default CES.System.extend({
         graphicsChassis.addChild(graphicsChassis.debug)
       }
 
-      body.fitness += p2.vec2.squaredLength(pb.velocity)
+      let vel = p2.vec2.squaredLength(pb.velocity)
+      if (pb.sleepState === p2.Body.SLEEPING) return
+      if (vel > 5000) vel *= -1
+      body.fitness += vel
       const input = body.sensors.map((sensor) => sensor.shortest.distance / 10000)
-      const output = body.genome.activate(input)
+      let output = body.genome.activate(input)
+      output = output.map((x) => Math.max(0, Math.min(1, x)))
       let rotation = [0, 0]
-      // output[0] = 0
-      // output[1] = 1
       body.force = output[1] * 2000 - 1000
       p2.vec2.rotate(rotation, [0, -1], (output[0] * 50 - 25) * Math.PI / 180)
-      // p2.vec2.rotate(rotation, rotation, pb.angle)
       let out = [0, 0]
       p2.vec2.mul(out, rotation, [body.force, body.force])
       graphicsChassis.debug.clear()
