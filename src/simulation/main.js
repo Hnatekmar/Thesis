@@ -4,6 +4,7 @@ import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
 import RoadDirector from './systems/roadDirector.js'
 import Sigma from 'sigma'
+import * as p2 from 'p2'
 
 const CES = require('ces')
 
@@ -116,7 +117,7 @@ export default class Simulation {
     this.lastDt = dt
     this.acc += delta / 1000
     let currentFitness = this.car.getComponent('car').fitness
-    if (this.acc < this.time) {
+    if (this.acc < this.time && this.car.getComponent('physics').body.sleepState !== p2.Body.SLEEPING) {
       this.world.update(delta)
     } else {
       this.onFinish(currentFitness)
@@ -128,23 +129,18 @@ export default class Simulation {
    */
   destroy () {
     if (this.world !== undefined) {
-      // let physicsBody = this.car.getComponent('physics').body
-      // Matter.Body.setAngle(physicsBody, 0)
-      // Matter.Body.setAngularVelocity(physicsBody, 0)
-      // Matter.Body.setVelocity(physicsBody, this.velocity)
-      // Matter.Body.setPosition(physicsBody, this.position)
       this.car.getComponent('car').fitness = 0
       let body = this.car.getComponent('physics').body
+      body.allowSleep = false
+      if (body.sleepState === p2.Body.SLEEPING) {
+        body.wakeUp()
+      }
       body.setZeroForce()
       body.position = [this.position[0], this.position[1]]
       body.angularVelocity = 0
       body.velocity = [0, 0]
       body.angle = 0
       this.roadDirector.reset()
-      // let entities = this.b2World.getEntities()
-      // entities.forEach((entity) => this.b2World.removeEntity(entity))
-      // Matter.World.clear(this.physicsSystem.engine.b2World)
-      // Matter.Engine.clear(this.physicsSystem.engine)
     } else {
       this.position = [450, 600]
       this.velocity = [0, 0]
