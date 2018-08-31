@@ -41,9 +41,9 @@ export default {
       {
         popsize: 8,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 1,
-        mutationRate: 0.4,
-        network: new NEAT.architect.Random(18, 20, 2)
+        elitism: 2,
+        mutationRate: 0.3,
+        network: new NEAT.architect.Random(18, 10, 2)
       }
     )
     console.log(NEAT)
@@ -54,9 +54,8 @@ export default {
       console.log('Loaded')
       function update (dt) {
         t.$children.forEach((container) => container.simulation.update(dt))
-        requestAnimationFrame(update)
       }
-      requestAnimationFrame(update)
+      setInterval(() => update(1000.0 / 30), 1000.0 / 30)
       const neat = t.neat
       ASYNC.forever(
         function (next) {

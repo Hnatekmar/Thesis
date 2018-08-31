@@ -29,9 +29,10 @@ export default CES.System.extend({
       body.fitness += vel
       const input = body.sensors.map((sensor) => sensor.shortest.distance / 1000)
       let output = body.genome.activate(input)
+      output[0] = 0
       body.frontWheel.steerValue = (Math.PI / 4) * (output[1] * 2 - 1)
-      body.frontWheel.engineForce = (output[0] * 2 - 1) * 5000
-      body.backWheel.engineForce = (output[0] * 2 - 1) * 5000
+      body.frontWheel.engineForce = (output[0] * 2 - 1) * 40000
+      body.backWheel.engineForce = (output[0] * 2 - 1) * 40000
     })
   }
 })

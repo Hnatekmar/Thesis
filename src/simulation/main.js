@@ -113,12 +113,10 @@ export default class Simulation {
    */
   update (dt) {
     if (this.lastDt === null) this.lastDt = dt
-    const delta = dt - this.lastDt
-    this.lastDt = dt
-    this.acc += delta / 1000
+    this.acc += dt / 1000
     let currentFitness = this.car.getComponent('car').fitness
     if (this.acc < this.time && this.car.getComponent('physics').body.sleepState !== p2.Body.SLEEPING) {
-      this.world.update(delta)
+      this.world.update(dt)
     } else {
       this.onFinish(currentFitness)
     }
