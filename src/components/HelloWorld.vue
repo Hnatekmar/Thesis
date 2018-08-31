@@ -35,22 +35,18 @@ export default {
     })
 
     this.neat = new NEAT.Neat(
-      180,
+      18,
       2,
       null,
-      // async function (genome) {
-      //   return t.$children[0].simulation.evaluate(genome)
-      // },
       {
+        popsize: 8,
         mutation: NEAT.methods.mutation.ALL,
-        popsize: 8 // ,
-        // network: new NEAT.architect.Random(
-        //   180,
-        //   180,
-        //   2
-        // )
+        elitism: 1,
+        mutationRate: 0.4,
+        network: new NEAT.architect.Random(18, 20, 2)
       }
     )
+    console.log(NEAT)
 
     console.log('Loading assets')
     const t = this
