@@ -6,16 +6,13 @@ import * as CES from 'ces'
 export default CES.Component.extend({
   name: 'car',
   force: 0.0,
-  init: function (chassis, wheels, genome) {
+  init: function (chassis, genome, car, frontWheel, backWheel) {
     this.genome = genome
     this.chassis = chassis
-    this.debugDrawer = null
-    // wheels.forEach((wheel) => {
-    //   graphics.addChild(wheel.body)
-    //   // wheel.body.pivot.set(wheel.offset.x + wheel.body.width / 2, wheel.offset.y + wheel.body.height / 2)
-    // })
-    // this.wheels = wheels
+    this.car = car
     this.fitness = 0
+    this.frontWheel = frontWheel
+    this.backWheel = backWheel
   },
   getAngle: function (wheel, angle) {
     if (angle < wheel.angleFrom) angle = wheel.angleFrom

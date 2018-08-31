@@ -25,12 +25,19 @@ export default function (x, y, world, genome) {
   entity.addComponent(new PhysicsComponent(
     body
   ))
-  entity.addComponent(new CarComponent(entity, [
-  ], genome))
+  let car = new p2.TopDownVehicle(body)
+  let frontWheel = car.addWheel({
+    localPosition: [0, 100]
+  })
+  let backWheel = car.addWheel({
+    localPosition: [0, -100]
+  })
+  entity.addComponent(new CarComponent(entity, genome, car, frontWheel, backWheel))
   world.addEntity(entity)
   let carComponent = entity.getComponent('car')
   let p2World = entity.getComponent('physics').world
-  carComponent.sensors = _.range(0, 360, 2)
+  car.addToWorld(p2World)
+  carComponent.sensors = _.range(-45, 45, 10)
     .map((el) => new ray.Sensor([Math.cos(el * (Math.PI / 180)), Math.sin(el * (Math.PI / 180))], p2World))
   return entity
 }
