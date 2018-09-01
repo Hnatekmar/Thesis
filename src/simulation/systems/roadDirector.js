@@ -17,6 +17,16 @@ export default CES.System.extend({
     this.rng = new Chance('RNG0,0')
     this.position = [0, 0]
     this.parts = {
+      'I': {
+        'group': RoadPart(0, 0, this.world, [
+          Wall(250, 0, 20, 8000, this.world),
+          Wall(550, 0, 20, 8000, this.world)
+        ]),
+        'possibleParts': {
+          'up': ['Cross', 'T', 'I'],
+          'down': ['Cross', 'T', 'I']
+        }
+      },
       'T': {
         'group': RoadPart(0, 0, this.world, [
           Wall(250, 700, 20, 400, this.world),
@@ -27,7 +37,7 @@ export default CES.System.extend({
         ]),
         'possibleParts': {
           'up': [],
-          'down': ['Cross'],
+          'down': ['Cross', 'I'],
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
         }
@@ -44,15 +54,15 @@ export default CES.System.extend({
           Wall(550, 700, 20, 400, this.world)
         ]),
         'possibleParts': {
-          'up': ['Cross'],
-          'down': ['Cross', 'T'],
+          'up': ['Cross', 'I'],
+          'down': ['Cross', 'T', 'I'],
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
         }
       }
     }
     Object.keys(this.parts).forEach((key) => {
-      if (key !== 'Cross') {
+      if (key !== 'I') {
         this.parts[key]['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
       }
     })
@@ -61,7 +71,7 @@ export default CES.System.extend({
     this.rng = new Chance('RNG0,0')
     this.position = [0, 0]
     this.currentPart['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
-    this.currentPart = this.parts['Cross']
+    this.currentPart = this.parts['I']
     this.currentPart['group'].moveAbsolute(0, 0)
   },
   setCar: function (car) {
@@ -109,7 +119,7 @@ export default CES.System.extend({
   },
   update: function (dt) {
     if (this.currentPart === undefined) {
-      this.currentPart = this.parts['Cross']
+      this.currentPart = this.parts['I']
     }
     let pos = this.getCarPosition()
     if (pos !== null) {

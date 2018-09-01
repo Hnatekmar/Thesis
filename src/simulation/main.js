@@ -28,7 +28,7 @@ export default class Simulation {
       this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
       // this.drawGenome()
-      this.car = Car(450.0, 600.0, this.world, this.genome)
+      this.car = Car(400.0, 400.0, this.world, this.genome)
       this.roadDirector = new RoadDirector()
       this.roadDirector.setWorld(this.world)
       this.roadDirector.setCar(this.car)
@@ -140,7 +140,7 @@ export default class Simulation {
       body.angle = 0
       this.roadDirector.reset()
     } else {
-      this.position = [450, 600]
+      this.position = [400, 400]
       this.velocity = [0, 0]
     }
   }
