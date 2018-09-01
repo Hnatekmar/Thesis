@@ -8,6 +8,25 @@ import * as p2 from 'p2'
 
 const CES = require('ces')
 
+function fillNaN (object, value) {
+  function replaceNaN (x) {
+    if (isNaN(x)) {
+      return value
+    }
+    return x
+  }
+  let keys = Object.keys(object)
+  for (let i in keys) {
+    if (typeof object[keys[i]] === 'number' && isNaN(object[keys[i]])) {
+      object[keys[i]] = value
+    } else if (object[keys[i]] !== null && object[keys[i]].constructor === Float32Array) {
+      for (let j = 0; j < object[keys[i]].length; j++) {
+        object[keys[i]][j] = replaceNaN(object[keys[i]][j])
+      }
+    }
+  }
+}
+
 /**
  * Main class of simulation
  */
@@ -129,6 +148,7 @@ export default class Simulation {
     if (this.world !== undefined) {
       this.car.getComponent('car').fitness = 0
       let body = this.car.getComponent('physics').body
+      fillNaN(body, 0.0)
       body.allowSleep = false
       if (body.sleepState === p2.Body.SLEEPING) {
         body.wakeUp()
