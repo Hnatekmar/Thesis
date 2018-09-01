@@ -46,9 +46,9 @@ export default CES.System.extend({
       let dir = 0
       body.backWheel.setBrakeForce(0)
       body.frontWheel.setBrakeForce(0)
-      if (choice === 0) { // FORWARD
-        dir = 1
-      } else if (choice === 1) { // BACKWARDS
+      if (choice === 0) { // BACKWARDS
+        dir = 0.1
+      } else if (choice === 1) { // FORWARD
         dir = -1
       } else if (choice === 2) { // BREAK
         dir = 0
