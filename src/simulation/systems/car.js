@@ -1,6 +1,18 @@
 import * as CES from 'ces'
 import * as p2 from 'p2'
 
+function indexOfMaximum (arr) {
+  let index = -1
+  let maximum = -1
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] > maximum) {
+      maximum = arr[i]
+      index = i
+    }
+  }
+  return index
+}
+
 // noinspection JSUnusedLocalSymbols
 export default CES.System.extend({
   update: function (dt) {
@@ -21,18 +33,31 @@ export default CES.System.extend({
 
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.position, [pb.id], pb.angle)
-        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 10000
+        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 800
       })
 
       let vel = Math.sqrt(p2.vec2.squaredLength(pb.velocity))
       if (pb.sleepState === p2.Body.SLEEPING) return
       body.fitness += vel
-      const input = body.sensors.map((sensor) => sensor.shortest.distance / 1000)
+      const input = body.sensors.map((sensor) => sensor.shortest.distance / 800)
       let output = body.genome.activate(input)
-      output[0] = 0
-      body.frontWheel.steerValue = (Math.PI / 4) * (output[1] * 2 - 1)
-      body.frontWheel.engineForce = (output[0] * 2 - 1) * 40000
-      body.backWheel.engineForce = (output[0] * 2 - 1) * 40000
+      let throttleControl = output.slice(1, 3)
+      let choice = indexOfMaximum(throttleControl)
+      let dir = 0
+      body.backWheel.setBrakeForce(0)
+      body.frontWheel.setBrakeForce(0)
+      if (choice === 0) { // FORWARD
+        dir = 1
+      } else if (choice === 1) { // BACKWARDS
+        dir = -1
+      } else if (choice === 2) { // BREAK
+        dir = 0
+        body.backWheel.setBrakeForce(4000)
+        body.frontWheel.setBrakeForce(4000)
+      }
+      body.frontWheel.steerValue = (Math.PI / 10) * (output[0] * 2 - 1)
+      body.frontWheel.engineForce = dir * 40000
+      body.backWheel.engineForce = dir * 40000
     })
   }
 })

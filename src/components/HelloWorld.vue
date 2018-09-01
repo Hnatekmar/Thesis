@@ -35,15 +35,14 @@ export default {
     })
 
     this.neat = new NEAT.Neat(
-      18,
-      2,
+      90,
+      4, // STEER, FORWARD, BACKWARDS, BREAK
       null,
       {
         popsize: 8,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 2,
-        mutationRate: 0.3,
-        network: new NEAT.architect.Random(18, 10, 2)
+        elitism: 1,
+        mutationRate: 0.3
       }
     )
     console.log(NEAT)
