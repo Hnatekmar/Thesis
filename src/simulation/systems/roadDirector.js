@@ -23,7 +23,7 @@ export default CES.System.extend({
           Wall(550, 700, 20, 400, this.world),
           Wall(125, 500, 250, 20, this.world),
           Wall(675, 500, 250, 20, this.world),
-          Wall(400, 200, 800, 20, this.world)
+          Wall(400, 250, 800, 20, this.world)
         ]),
         'possibleParts': {
           'up': [],
@@ -58,6 +58,8 @@ export default CES.System.extend({
     })
   },
   reset: function () {
+    this.rng = new Chance('RNG0,0')
+    this.position = [0, 0]
     this.currentPart['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
     this.currentPart = this.parts['Cross']
     this.currentPart['group'].moveAbsolute(0, 0)
