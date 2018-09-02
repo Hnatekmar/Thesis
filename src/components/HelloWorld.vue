@@ -41,7 +41,7 @@ export default {
       {
         popsize: 8,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 1,
+        elitism: 0,
         mutationRate: 0.3
       }
     )
@@ -54,7 +54,7 @@ export default {
       function update (dt) {
         t.$children.forEach((container) => container.simulation.update(dt))
       }
-      setInterval(() => update(1000.0 / 30), 1000.0 / 30)
+      setInterval(() => update(1000.0 / 60), 1000.0 / 60)
       const neat = t.neat
       ASYNC.forever(
         function (next) {
@@ -65,6 +65,7 @@ export default {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
                 chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+                chunk[i].score -= chunk[i].nodes.length * 100
               }
               callback()
             },

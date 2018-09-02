@@ -6,10 +6,12 @@ import Chance from 'chance'
 function getDirection (x, y, w, h) {
   if (x >= w) return 'right'
   if (y >= h) return 'up'
-  if (x < 0) return 'left'
-  if (y < 0) return 'down'
+  if (x <= 0) return 'left'
+  if (y <= 0) return 'down'
   return 'onScreen'
 }
+
+const STARTING_PIECE = 'Cross'
 
 export default CES.System.extend({
   setWorld: function (world) {
@@ -23,7 +25,7 @@ export default CES.System.extend({
           Wall(550, 0, 20, 8000, this.world)
         ]),
         'possibleParts': {
-          'up': ['Cross', 'T', 'I'],
+          'up': ['Cross', 'I'],
           'down': ['Cross', 'T', 'I']
         }
       },
@@ -36,8 +38,8 @@ export default CES.System.extend({
           Wall(400, 250, 800, 20, this.world)
         ]),
         'possibleParts': {
-          'up': [],
           'down': ['Cross', 'I'],
+          'up': ['Cross', 'I'],
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
         }
@@ -62,7 +64,7 @@ export default CES.System.extend({
       }
     }
     Object.keys(this.parts).forEach((key) => {
-      if (key !== 'I') {
+      if (key !== STARTING_PIECE) {
         this.parts[key]['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
       }
     })
@@ -71,7 +73,7 @@ export default CES.System.extend({
     this.rng = new Chance('RNG0,0')
     this.position = [0, 0]
     this.currentPart['group'].moveAbsolute(Math.sin(Math.random()) * 50000, Math.cos(Math.random()) * 50000)
-    this.currentPart = this.parts['I']
+    this.currentPart = this.parts[STARTING_PIECE]
     this.currentPart['group'].moveAbsolute(0, 0)
   },
   setCar: function (car) {
@@ -90,7 +92,7 @@ export default CES.System.extend({
     if (possiblePieces.length === 0) return
     this.currentPart['group'].moveAbsolute(50000, 50000)
     if (this.position[0] === 0 && this.position[1] === 0) {
-      this.currentPart = this.parts['Cross']
+      this.currentPart = this.parts[STARTING_PIECE]
     } else {
       this.currentPart = this.parts[this.rng.pickone(possiblePieces)]
     }
@@ -119,7 +121,7 @@ export default CES.System.extend({
   },
   update: function (dt) {
     if (this.currentPart === undefined) {
-      this.currentPart = this.parts['I']
+      this.currentPart = this.parts[STARTING_PIECE]
     }
     let pos = this.getCarPosition()
     if (pos !== null) {
