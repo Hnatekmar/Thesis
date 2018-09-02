@@ -25,8 +25,23 @@ export default {
       type: 'line',
       data: {
         datasets: [{
-          label: 'Fitness',
-          data: []
+          label: 'Best Fitness',
+          data: [],
+          backgroundColor: 'rgba(0,255,0,0.8)',
+          borderColor: 'rgba(0,255,0,0.8)',
+          fill: false
+        }, {
+          label: 'Avg. fitness',
+          data: [],
+          backgroundColor: 'rgba(0,0,255,0.8)',
+          borderColor: 'rgba(0,0,255,0.8)',
+          fill: false
+        }, {
+          label: 'Worst fitness',
+          data: [],
+          backgroundColor: 'rgba(255,0,0,0.8)',
+          borderColor: 'rgba(255,0,0,0.8)',
+          fill: false
         }]
       },
       options: {
@@ -35,7 +50,7 @@ export default {
     })
 
     this.neat = new NEAT.Neat(
-      90,
+      72,
       4, // STEER, FORWARD, BACKWARDS, BREAK
       null,
       {
@@ -77,6 +92,9 @@ export default {
 
               t.chart.data.labels.push(neat.generation)
               t.chart.data.datasets[0].data.push(neat.population[0].score)
+              let avg = neat.population.reduce((acc, el) => acc + el.score, 0.0) / neat.population.length
+              t.chart.data.datasets[1].data.push(avg)
+              t.chart.data.datasets[2].data.push(neat.population[neat.population.length - 1].score)
               t.chart.update()
               // Elitism
               for (let i = 0; i < neat.elitism; i++) {

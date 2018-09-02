@@ -40,8 +40,15 @@ export default CES.System.extend({
       if (pb.sleepState === p2.Body.SLEEPING) return
       const input = body.sensors.map((sensor) => 1 - sensor.shortest.distance / 800)
       let output = body.genome.activate(input)
-      if (isNaN(output[0])) {
-        output[0] = 0
+      for (let i = 0; i < output.length; i++) {
+        if (isNaN(output[i])) {
+          output[i] = 0
+          body.fitness = -Number.MAX_VALUE
+          pb.allowSleep = true
+          pb.force = [0, 0]
+          pb.sleep()
+          return
+        }
       }
       let throttleControl = output.slice(1, 4)
       let choice = indexOfMaximum(throttleControl)
@@ -57,7 +64,7 @@ export default CES.System.extend({
         dir = 0.5
         body.fitness += vel * 0.5
       } else if (choice === 2) { // BREAK
-        if (vel === 0.0)  {
+        if (vel === 0.0) {
           pb.allowSleep = true
           pb.force = [0, 0]
           pb.sleep()
