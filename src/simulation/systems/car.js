@@ -23,7 +23,7 @@ export default CES.System.extend({
       pb.world.on('beginContact', (event) => {
         let bodyA = event.bodyA
         let bodyB = event.bodyB
-        if (pb.sleepState !== p2.Body.SLEEPING) body.fitness -= 10000
+        if (pb.sleepState !== p2.Body.SLEEPING) body.fitness -= 50000
         if ((bodyA.id === pb.id) || (bodyB.id === pb.id)) {
           pb.allowSleep = true
           pb.force = [0, 0]
@@ -33,31 +33,42 @@ export default CES.System.extend({
 
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.position, [pb.id], pb.angle)
-        if (sensor.shortest.distance === Infinity) sensor.shortest.distance = 800
+        if (sensor.shortest.distance === Infinity || sensor.shortest.distance > 800) sensor.shortest.distance = 800
       })
 
       let vel = Math.sqrt(p2.vec2.squaredLength(pb.velocity))
       if (pb.sleepState === p2.Body.SLEEPING) return
-      body.fitness += vel
-      const input = body.sensors.map((sensor) => sensor.shortest.distance / 800)
+      const input = body.sensors.map((sensor) => 1 - sensor.shortest.distance / 800)
       let output = body.genome.activate(input)
-      let throttleControl = output.slice(1, 3)
+      if (isNaN(output[0])) {
+        output[0] = 0
+      }
+      let throttleControl = output.slice(1, 4)
       let choice = indexOfMaximum(throttleControl)
       let dir = 0
       body.backWheel.setBrakeForce(0)
       body.frontWheel.setBrakeForce(0)
-      if (choice === 0) { // BACKWARDS
-        dir = 0.1
-      } else if (choice === 1) { // FORWARD
+      body.frontWheel.setSideFriction(8000)
+      body.backWheel.setSideFriction(6000)
+      if (choice === 0) { // FORWARD
         dir = -1
+        body.fitness += vel
+      } else if (choice === 1) { // BACKWARDS
+        dir = 0.5
+        body.fitness += vel * 0.5
       } else if (choice === 2) { // BREAK
+        if (vel === 0.0)  {
+          pb.allowSleep = true
+          pb.force = [0, 0]
+          pb.sleep()
+        }
         dir = 0
-        body.backWheel.setBrakeForce(4000)
-        body.frontWheel.setBrakeForce(4000)
+        body.fitness -= 100
+        body.frontWheel.setBrakeForce(5 * 2000)
       }
-      body.frontWheel.steerValue = (Math.PI / 10) * (output[0] * 2 - 1)
-      body.frontWheel.engineForce = dir * 40000
-      body.backWheel.engineForce = dir * 40000
+      body.frontWheel.steerValue = (Math.PI / 180.0) * (-45 + output[0] * 90)
+      // body.frontWheel.engineForce = dir * 40000
+      body.backWheel.engineForce = dir * 7 * 9000
     })
   }
 })
