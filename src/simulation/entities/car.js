@@ -1,49 +1,43 @@
 import * as CES from 'ces'
 import GraphicsComponent from '../components/graphics.js'
 import PhysicsComponent from '../components/physics.js'
-import * as Matter from 'matter-js'
 import * as PIXI from 'pixi.js'
+import * as p2 from 'p2'
 import CarComponent from '../components/car.js'
-
-function rectangle (x, y, w, h, color) {
-  const result = new PIXI.Graphics()
-  result.beginFill(color, 0.5)
-  result.drawRect(x, y, w, h)
-  result.position.set(x, y)
-  return result
-}
-
-function wheel (x, y, offset, force, range) {
-  return {
-    body: rectangle(offset.x, offset.y, 10, 20, 0xFFFFFF),
-    angle: Math.PI / 4,
-    angleFrom: -range * (Math.PI / 180.0),
-    angleTo: range * (Math.PI / 180.0),
-    offset: offset,
-    speed: force,
-    forward: Matter.Vector.create(0, -1)
-  }
-}
+import * as _ from 'lodash'
+import * as ray from '../entities/raySensor'
 
 export default function (x, y, world, genome) {
   const entity = new CES.Entity()
   const graphicsComponent = new GraphicsComponent([
-    rectangle(0, 0, 100, 200, 0xff0000)
+    new PIXI.Sprite(PIXI.loader.resources['./static/chassis.png'].texture)
   ])
-  graphicsComponent.container.position.set(x, y)
   entity.addComponent(graphicsComponent)
+  let body = new p2.Body({
+    mass: 2000,
+    position: [x, y],
+    allowSleep: false
+  })
+  body.addShape(new p2.Box({
+    width: 100,
+    height: 200
+  }))
   entity.addComponent(new PhysicsComponent(
-    Matter.Bodies.rectangle(x, y, 100, 200, {
-      density: 0.78,
-      friction: 1.0
-    })
+    body
   ))
-  entity.addComponent(new CarComponent(entity, [
-    wheel(x, y, {x: 100, y: 10}, 0.2, 45),
-    wheel(x, y, {x: -5, y: 10}, 0.2, 45),
-    wheel(x, y, {x: -5, y: 190}, 0.0, 0),
-    wheel(x, y, {x: 100, y: 190}, 0.0, 0)
-  ], genome))
+  let car = new p2.TopDownVehicle(body)
+  let frontWheel = car.addWheel({
+    localPosition: [0, 100]
+  })
+  let backWheel = car.addWheel({
+    localPosition: [0, -100]
+  })
+  entity.addComponent(new CarComponent(entity, genome, car, frontWheel, backWheel))
   world.addEntity(entity)
+  let carComponent = entity.getComponent('car')
+  let p2World = entity.getComponent('physics').world
+  car.addToWorld(p2World)
+  carComponent.sensors = _.range(0, 360, 5)
+    .map((el) => new ray.Sensor([Math.cos(el * (Math.PI / 180)), Math.sin(el * (Math.PI / 180))], p2World))
   return entity
 }

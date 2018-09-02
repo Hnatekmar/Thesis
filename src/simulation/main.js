@@ -2,17 +2,38 @@ import GraphicsSystem from './systems/graphics.js'
 import PhysicsSystem from './systems/physics.js'
 import CarSystem from './systems/car.js'
 import Car from './entities/car.js'
-import Wall from './entities/wall.js'
+import RoadDirector from './systems/roadDirector.js'
+import Sigma from 'sigma'
+import * as p2 from 'p2'
 
 const CES = require('ces')
+
+function fillNaN (object, value) {
+  function replaceNaN (x) {
+    if (isNaN(x)) {
+      return value
+    }
+    return x
+  }
+  let keys = Object.keys(object)
+  for (let i in keys) {
+    if (typeof object[keys[i]] === 'number' && isNaN(object[keys[i]])) {
+      object[keys[i]] = value
+    } else if (object[keys[i]] !== null && object[keys[i]].constructor === Float32Array) {
+      for (let j = 0; j < object[keys[i]].length; j++) {
+        object[keys[i]][j] = replaceNaN(object[keys[i]][j])
+      }
+    }
+  }
+}
 
 /**
  * Main class of simulation
  */
 export default class Simulation {
-  constructor (canvasElement, frames) {
+  constructor (canvasElement, frames, visualizationID) {
+    this.visualizationID = visualizationID
     this.time = frames
-    this.frames = frames
     this.canvasElement = canvasElement
   }
 
@@ -22,23 +43,83 @@ export default class Simulation {
       this.renderer.setCanvas(canvas)
       this.world = new CES.World()
       this.world.addSystem(this.renderer)
-      this.world.addSystem(new PhysicsSystem())
+      this.physicsSystem = new PhysicsSystem()
+      this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
+      // this.drawGenome()
+      this.car = Car(400.0, 400.0, this.world, this.genome)
+      this.roadDirector = new RoadDirector()
+      this.roadDirector.setWorld(this.world)
+      this.roadDirector.setCar(this.car)
+      this.world.addSystem(this.roadDirector)
     } else {
-      this.renderer.setCanvas(canvas)
+      this.car.getComponent('car').genome = this.genome
     }
-    this.car = Car(100.0, 500.0, this.world, this.genome)
-    Wall(20, 0, 20, 5000, this.world)
-    Wall(190, 0, 20, 5000, this.world)
     this.lastDt = 0
+  }
+
+  generateGraph (width, height, sigma) {
+    sigma.graph.clear()
+    const graph = this.genome.graph(width, height)
+
+    function getPosition (nodeID) {
+      let zero = {x: 0, y: 0}
+      if (graph.constraints === undefined) return zero
+      let offsetX = graph.constraints[0].offsets.filter((of) => of.node === nodeID)
+      let offsetY = graph.constraints[1].offsets.filter((of) => of.node === nodeID)
+      if (offsetX.length === 0 || offsetY.length === 0) return zero
+      return {
+        x: offsetX[0].offset,
+        y: offsetY[0].offset
+      }
+    }
+
+    for (let nodeID in graph.nodes) {
+      // noinspection JSUnfilteredForInLoop
+      let node = graph.nodes[nodeID]
+      let position = getPosition(node.id)
+      // noinspection JSUnfilteredForInLoop
+      let result = {
+        id: node.id.toString(),
+        label: node.name + ' ',
+        x: position.x,
+        y: position.y,
+        size: 1
+      }
+      sigma.graph.addNode(result)
+    }
+    for (let linkID in graph.links) {
+      // noinspection JSUnfilteredForInLoop
+      let link = graph.links[linkID]
+      link.id = linkID
+      link.source = link.source.toString()
+      link.target = link.target.toString()
+      link.color = 'red'
+      link.size = link.weight * 10
+      sigma.graph.addEdge(link)
+    }
+    sigma.settings({
+      scalingMode: 'outside',
+      minEdgeSize: 0.1,
+      maxEdgeSize: 10.0
+    })
+    sigma.refresh()
+  }
+
+  drawGenome () {
+    if (this.sigma === undefined) {
+      // noinspection JSPotentiallyInvalidConstructorUsage eslint-disable-next-line new-cap
+      this.sigma = new Sigma(this.visualizationID)
+    }
+    this.generateGraph(this.visualizationID.clientWidth, this.visualizationID.clientHeight, this.sigma)
   }
 
   evaluate (genome) {
     this.destroy()
     this.genome = genome
     this.init(this.canvasElement)
-    this.frames = this.time
-    requestAnimationFrame((dt) => this.update(dt))
+    this.acc = 0
+    this.lastDt = null
     let t = this
     return new Promise(
       function (resolve) {
@@ -50,14 +131,13 @@ export default class Simulation {
    * Main simulation loop
    */
   update (dt) {
-    this.frames -= 1
-    const delta = dt - this.lastDt
-    this.lastDt = dt
-    this.world.update(delta / 1000.0)
-    if (this.frames >= 0) {
-      requestAnimationFrame((dt) => this.update(dt))
+    if (this.lastDt === null) this.lastDt = dt
+    this.acc += dt / 1000
+    let currentFitness = this.car.getComponent('car').fitness
+    if (this.acc < this.time && this.car.getComponent('physics').body.sleepState !== p2.Body.SLEEPING) {
+      this.world.update(dt)
     } else {
-      this.onFinish(this.car.getComponent('car').fitness)
+      this.onFinish(currentFitness)
     }
   }
 
@@ -66,8 +146,22 @@ export default class Simulation {
    */
   destroy () {
     if (this.world !== undefined) {
-      const allEntities = this.world.getEntities()
-      allEntities.forEach((entity) => this.world.removeEntity(entity))
+      this.car.getComponent('car').fitness = 0
+      let body = this.car.getComponent('physics').body
+      fillNaN(body, 0.0)
+      body.allowSleep = false
+      if (body.sleepState === p2.Body.SLEEPING) {
+        body.wakeUp()
+      }
+      body.setZeroForce()
+      body.position = [this.position[0], this.position[1]]
+      body.angularVelocity = 0
+      body.velocity = [0, 0]
+      body.angle = 0
+      this.roadDirector.reset()
+    } else {
+      this.position = [400, 400]
+      this.velocity = [0, 0]
     }
   }
 }

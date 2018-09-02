@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <canvas id="chart"></canvas>
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
     </span>
@@ -12,73 +13,120 @@ import Simulation from './Simulation'
 import NEAT from 'neataptic'
 import ASYNC from 'async'
 import _ from 'lodash'
+import * as PIXI from 'pixi.js'
+import * as Chart from 'chart.js'
 
 export default {
   name: 'HelloWorld',
   components: {Simulation},
   mounted: function () {
-    const t = this
-    ASYNC.forever(
-      function (next) {
-        // Split to chunks
-        const neat = t.$data.neat
-        const chunks = _.chunk(t.$data.neat.population, neat.population.length / t.$children.length)
-        console.log(chunks.length)
-        ASYNC.eachOf(chunks,
-          async function (chunk, index, callback) {
-            for (let i in chunk) {
-              // noinspection JSUnfilteredForInLoop
-              chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
-              console.log(chunk[i].score)
-            }
-            callback()
-          },
-          function () {
-            neat.sort()
+    let chartCanvas = document.getElementById('chart').getContext('2d')
+    this.chart = new Chart(chartCanvas, {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: 'Best Fitness',
+          data: [],
+          backgroundColor: 'rgba(0,255,0,0.8)',
+          borderColor: 'rgba(0,255,0,0.8)',
+          fill: false
+        }, {
+          label: 'Avg. fitness',
+          data: [],
+          backgroundColor: 'rgba(0,0,255,0.8)',
+          borderColor: 'rgba(0,0,255,0.8)',
+          fill: false
+        }, {
+          label: 'Worst fitness',
+          data: [],
+          backgroundColor: 'rgba(255,0,0,0.8)',
+          borderColor: 'rgba(255,0,0,0.8)',
+          fill: false
+        }]
+      },
+      options: {
+        animation: false
+      }
+    })
 
-            // From https://wagenaartje.github.io/neataptic/docs/neat/
-            let newPopulation = []
-
-            // Elitism
-            for (let i = 0; i < neat.elitism; i++) {
-              newPopulation.push(neat.population[i])
-            }
-
-            // Breed the next individuals
-            for (let i = 0; i < neat.popsize - neat.elitism; i++) {
-              newPopulation.push(neat.getOffspring())
-            }
-
-            // Replace the old population with the new population
-            neat.population = newPopulation
-            neat.mutate()
-
-            neat.generation++
-            next()
-          })
+    this.neat = new NEAT.Neat(
+      72,
+      4, // STEER, FORWARD, BACKWARDS, BREAK
+      null,
+      {
+        popsize: 8,
+        mutation: NEAT.methods.mutation.ALL,
+        elitism: 0,
+        mutationRate: 0.3
       }
     )
+    console.log(NEAT)
+
+    console.log('Loading assets')
+    const t = this
+    const afterLoad = function () {
+      console.log('Loaded')
+      function update (dt) {
+        t.$children.forEach((container) => container.simulation.update(dt))
+      }
+      setInterval(() => update(1000.0 / 60), 1000.0 / 60)
+      const neat = t.neat
+      ASYNC.forever(
+        function (next) {
+          // Split to chunks
+          const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
+          ASYNC.eachOf(chunks,
+            async function (chunk, index, callback) {
+              for (let i in chunk) {
+                // noinspection JSUnfilteredForInLoop
+                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+                chunk[i].score -= chunk[i].nodes.length * 100
+              }
+              callback()
+            },
+            function () {
+              neat.sort()
+
+              // From https://wagenaartje.github.io/neataptic/docs/neat/
+              let newPopulation = []
+
+              t.chart.data.labels.push(neat.generation)
+              t.chart.data.datasets[0].data.push(neat.population[0].score)
+              let avg = neat.population.reduce((acc, el) => acc + el.score, 0.0) / neat.population.length
+              t.chart.data.datasets[1].data.push(avg)
+              t.chart.data.datasets[2].data.push(neat.population[neat.population.length - 1].score)
+              t.chart.update()
+              // Elitism
+              for (let i = 0; i < neat.elitism; i++) {
+                newPopulation.push(neat.population[i])
+              }
+
+              // Breed the next individuals
+              for (let i = 0; i < neat.popsize - neat.elitism; i++) {
+                newPopulation.push(neat.getOffspring())
+              }
+              delete neat.population
+              // Replace the old population with the new population
+              neat.population = newPopulation
+              neat.mutate()
+
+              neat.generation++
+              next()
+            })
+        }
+      )
+    }
+
+    PIXI.loader.onComplete.add(afterLoad)
+
+    PIXI.loader
+      .add('./static/chassis.png')
+      .add('./static/wheel.png')
+      .load()
   },
   data () {
     return {
-      numberOfEvaluators: 8,
-      neat: new NEAT.Neat(
-        8,
-        2,
-        null,
-        // async function (genome) {
-        //   return t.$children[0].simulation.evaluate(genome)
-        // },
-        {
-          mutation: NEAT.methods.mutation.ALL,
-          popsize: 8
-          // network: new NEAT.architect.Random(
-          //   8,
-          //   50,
-          //   2
-          // )
-        }
-      )
+      numberOfEvaluators: 8
     }
   }
 }
@@ -99,5 +147,11 @@ li {
 }
 a {
   color: #42b983;
+}
+#chart {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  width: 90%;
 }
 </style>
