@@ -20,16 +20,19 @@ export default CES.System.extend({
       const body = entity.getComponent('car')
 
       const pb = body.chassis.getComponent('physics').body
-      pb.world.on('beginContact', (event) => {
-        let bodyA = event.bodyA
-        let bodyB = event.bodyB
-        if (pb.sleepState !== p2.Body.SLEEPING) body.fitness -= 50000
-        if ((bodyA.id === pb.id) || (bodyB.id === pb.id)) {
-          pb.allowSleep = true
-          pb.force = [0, 0]
-          pb.sleep()
-        }
-      })
+      if (pb.callbackInitialized === undefined) {
+        pb.world.on('beginContact', (event) => {
+          let bodyA = event.bodyA
+          let bodyB = event.bodyB
+          if (pb.sleepState !== p2.Body.SLEEPING) body.fitness -= 50000
+          if ((bodyA.id === pb.id) || (bodyB.id === pb.id)) {
+            pb.allowSleep = true
+            pb.force = [0, 0]
+            pb.sleep()
+          }
+        })
+        pb.callbackInitialized = true
+      }
 
       body.sensors.forEach(function (sensor) {
         sensor.cast(pb.position, [pb.id], pb.angle)
@@ -41,9 +44,9 @@ export default CES.System.extend({
       const input = body.sensors.map((sensor) => 1 - sensor.shortest.distance / 800)
       let output = body.genome.activate(input)
       for (let i = 0; i < output.length; i++) {
-        if (isNaN(output[i])) {
+        if (isNaN(output[i]) || isNaN(vel)) {
           output[i] = 0
-          body.fitness = -Number.MAX_VALUE
+          body.fitness = -9000000
           pb.allowSleep = true
           pb.force = [0, 0]
           pb.sleep()
@@ -61,7 +64,7 @@ export default CES.System.extend({
         dir = -1
         body.fitness += vel
       } else if (choice === 1) { // BACKWARDS
-        dir = 0.5
+        dir = 0.05
         body.fitness += vel * 0.5
       } else if (choice === 2) { // BREAK
         if (vel === 0.0) {
@@ -73,8 +76,8 @@ export default CES.System.extend({
         body.fitness -= 100
         body.frontWheel.setBrakeForce(5 * 2000)
       }
-      body.frontWheel.steerValue = (Math.PI / 180.0) * (-45 + output[0] * 90)
-      // body.frontWheel.engineForce = dir * 40000
+      output[0] = Math.abs(output[0]) % 361
+      body.frontWheel.steerValue = (Math.PI / 180.0) * output[0]
       body.backWheel.engineForce = dir * 7 * 9000
     })
   }

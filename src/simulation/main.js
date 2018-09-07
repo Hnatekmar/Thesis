@@ -41,12 +41,12 @@ export default class Simulation {
     if (this.world === undefined) {
       this.renderer = new GraphicsSystem()
       this.renderer.setCanvas(canvas)
+      this.renderer.draw = true
       this.world = new CES.World()
       this.world.addSystem(this.renderer)
       this.physicsSystem = new PhysicsSystem()
       this.world.addSystem(this.physicsSystem)
       this.world.addSystem(new CarSystem())
-      // this.drawGenome()
       this.car = Car(400.0, 400.0, this.world, this.genome)
       this.roadDirector = new RoadDirector()
       this.roadDirector.setWorld(this.world)
@@ -127,12 +127,19 @@ export default class Simulation {
       }
     )
   }
+
+  evalGenome (dt) {
+    while (this.acc < this.time && this.car.getComponent('physics').body.sleepState !== p2.Body.SLEEPING) {
+      this.update(dt)
+    }
+  }
+
   /**
    * Main simulation loop
    */
   update (dt) {
     if (this.lastDt === null) this.lastDt = dt
-    this.acc += dt / 1000
+    this.acc += dt
     let currentFitness = this.car.getComponent('car').fitness
     if (this.acc < this.time && this.car.getComponent('physics').body.sleepState !== p2.Body.SLEEPING) {
       this.world.update(dt)

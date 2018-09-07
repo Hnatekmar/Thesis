@@ -90,18 +90,18 @@ export default CES.System.extend({
     if (this.currentPart === undefined) return
     let possiblePieces = this.currentPart['possibleParts'][direction]
     if (possiblePieces.length === 0) return
+    if (direction === 'up') this.position[1] += 1
+    if (direction === 'down') this.position[1] -= 1
+    if (direction === 'left') this.position[0] -= 1
+    if (direction === 'right') this.position[0] += 1
     this.currentPart['group'].moveAbsolute(50000, 50000)
+    this.rng = new Chance('RNG' + this.position[0] + ',' + this.position[1])
     if (this.position[0] === 0 && this.position[1] === 0) {
       this.currentPart = this.parts[STARTING_PIECE]
     } else {
       this.currentPart = this.parts[this.rng.pickone(possiblePieces)]
     }
     this.currentPart['group'].moveAbsolute(0, 0)
-    if (direction === 'up') this.position[1] += 1
-    if (direction === 'down') this.position[1] -= 1
-    if (direction === 'left') this.position[0] -= 1
-    if (direction === 'right') this.position[0] += 1
-    this.rng = new Chance('RNG' + this.position[0] + ',' + this.position[1])
     this.moveCarBackToScreen(direction)
   },
   moveCarBackToScreen: function (direction) {

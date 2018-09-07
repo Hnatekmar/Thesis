@@ -48,28 +48,56 @@ export default {
         animation: false
       }
     })
-
+    console.log(NEAT)
     this.neat = new NEAT.Neat(
-      72,
+      36,
       4, // STEER, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 8,
+        popsize: 16,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 0,
-        mutationRate: 0.3
+        elitism: 1,
+        mutationRate: 0.2
       }
     )
-    console.log(NEAT)
 
     console.log('Loading assets')
     const t = this
     const afterLoad = function () {
       console.log('Loaded')
-      function update (dt) {
-        t.$children.forEach((container) => container.simulation.update(dt))
+      document.onkeypress = function (e) {
+        if (e.keyCode === 32) {
+          t.$children.forEach(function (container) {
+            container.simulation.renderer.draw = !container.simulation.renderer.draw
+          })
+        }
       }
-      setInterval(() => update(1000.0 / 60), 1000.0 / 60)
+      let start = null
+      function update (timestamp) {
+        if (!start) start = timestamp
+        let dt = timestamp - start
+        if (dt >= 500) dt = 1000 / 60.0
+        start = timestamp
+        dt = dt / 1000
+        let tmp = start
+        t.$children.forEach((container) => {
+          if (!container.simulation.renderer.draw) {
+            dt = 1000 / 60
+            dt = dt / 1000
+            let interval = container.simulation.time - container.simulation.acc
+            while (interval >= 0) {
+              interval -= dt
+              tmp += dt
+              container.simulation.update(dt)
+            }
+          } else {
+            container.simulation.update(dt)
+          }
+        })
+        start = tmp
+        window.requestAnimationFrame(update)
+      }
+      window.requestAnimationFrame(update)
       const neat = t.neat
       ASYNC.forever(
         function (next) {
