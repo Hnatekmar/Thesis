@@ -34,17 +34,35 @@ export default CES.System.extend({
         pb.callbackInitialized = true
       }
 
-      body.sensors.forEach(function (sensor) {
-        sensor.cast(pb.position, [pb.id], pb.angle)
-        if (sensor.shortest.distance === Infinity || sensor.shortest.distance > 800) sensor.shortest.distance = 800
-      })
-
+      if (this.input === undefined) {
+        this.input = []
+        for (let i = 0; i < body.sensors.length; i++) {
+          this.input.push(0)
+        }
+        body.backWheel.setBrakeForce(0)
+        body.frontWheel.setBrakeForce(0)
+        body.frontWheel.setSideFriction(8000)
+        body.backWheel.setSideFriction(6000)
+      }
+      for (let i = 0; i < body.sensors.length; i++) {
+        body.sensors[i].cast(pb.position, [pb.id], pb.angle)
+        if (body.sensors[i].shortest.distance === Infinity || body.sensors[i].shortest.distance > 800) {
+          body.sensors[i].shortest.distance = 800
+        }
+        body.sensors[i].shortest.distance /= 800.0
+        this.input[i] = body.sensors[i].shortest.distance
+      }
       let vel = Math.sqrt(p2.vec2.squaredLength(pb.velocity))
+      if (vel === 0 && body.fitness !== 0) {
+        pb.allowSleep = true
+        pb.force = [0, 0]
+        pb.sleep()
+      }
       if (pb.sleepState === p2.Body.SLEEPING) return
-      const input = body.sensors.map((sensor) => 1 - sensor.shortest.distance / 800)
-      let output = body.genome.activate(input)
+      let output = body.genome.activate(this.input)
+      let isVelNaN = isNaN(vel)
       for (let i = 0; i < output.length; i++) {
-        if (isNaN(output[i]) || isNaN(vel)) {
+        if (isVelNaN || isNaN(output[i])) {
           output[i] = 0
           body.fitness = -9000000
           pb.allowSleep = true
@@ -53,20 +71,18 @@ export default CES.System.extend({
           return
         }
       }
-      let throttleControl = output.slice(1, 4)
-      let choice = indexOfMaximum(throttleControl)
+      let steeringControl = output.slice(0, 3)
+      let steeringChoice = indexOfMaximum(steeringControl)
+      let throttleControl = output.slice(4, 6)
+      let throttleChoice = indexOfMaximum(throttleControl)
       let dir = 0
-      body.backWheel.setBrakeForce(0)
-      body.frontWheel.setBrakeForce(0)
-      body.frontWheel.setSideFriction(8000)
-      body.backWheel.setSideFriction(6000)
-      if (choice === 0) { // FORWARD
+      if (throttleChoice === 0) { // FORWARD
         dir = -1
         body.fitness += vel
-      } else if (choice === 1) { // BACKWARDS
-        dir = 0.05
+      } else if (throttleChoice === 1) { // BACKWARDS
+        dir = 0.15
         body.fitness += vel * 0.5
-      } else if (choice === 2) { // BREAK
+      } else if (throttleChoice === 2) { // BREAK
         if (vel === 0.0) {
           pb.allowSleep = true
           pb.force = [0, 0]
@@ -76,9 +92,16 @@ export default CES.System.extend({
         body.fitness -= 100
         body.frontWheel.setBrakeForce(5 * 2000)
       }
-      output[0] = Math.abs(output[0]) % 361
-      body.frontWheel.steerValue = (Math.PI / 180.0) * output[0]
-      body.backWheel.engineForce = dir * 7 * 9000
+      if (steeringChoice === 0) {
+        if (body.frontWheel.steerValue > 5.0 / 6.0 * Math.PI) {
+          body.frontWheel.steerValue -= (Math.PI / 180.0) * 10
+        }
+      } else if (steeringChoice === 1) {
+        if (body.frontWheel.steerValue < Math.PI / 6.0) {
+          body.frontWheel.steerValue += (Math.PI / 180.0) * 10
+        }
+      }
+      body.backWheel.engineForce = dir * 7 * 9000 * 2
     })
   }
 })

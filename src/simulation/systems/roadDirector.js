@@ -11,7 +11,7 @@ function getDirection (x, y, w, h) {
   return 'onScreen'
 }
 
-const STARTING_PIECE = 'Cross'
+const STARTING_PIECE = 'I'
 
 export default CES.System.extend({
   setWorld: function (world) {
@@ -60,6 +60,16 @@ export default CES.System.extend({
           'down': ['Cross', 'T', 'I'],
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
+        }
+      },
+      'Box': {
+        'group': RoadPart(0, 0, this.world, [
+          Wall(400, 0, 800, 20, this.world),
+          Wall(0, 400, 20, 800, this.world),
+          Wall(800, 400, 20, 800, this.world),
+          Wall(400, 800, 800, 20, this.world)
+        ]),
+        'possibleParts': {
         }
       }
     }

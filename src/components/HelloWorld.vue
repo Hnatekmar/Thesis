@@ -4,6 +4,9 @@
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
     </span>
+    <div>
+      <button id="fastForward">FastForward</button>
+    </div>
   </div>
 </template>
 
@@ -15,6 +18,7 @@ import ASYNC from 'async'
 import _ from 'lodash'
 import * as PIXI from 'pixi.js'
 import * as Chart from 'chart.js'
+import * as $ from 'jquery'
 
 export default {
   name: 'HelloWorld',
@@ -26,18 +30,21 @@ export default {
       data: {
         datasets: [{
           label: 'Best Fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(0,255,0,0.8)',
           borderColor: 'rgba(0,255,0,0.8)',
           fill: false
         }, {
           label: 'Avg. fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(0,0,255,0.8)',
           borderColor: 'rgba(0,0,255,0.8)',
           fill: false
         }, {
           label: 'Worst fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(255,0,0,0.8)',
           borderColor: 'rgba(255,0,0,0.8)',
@@ -48,44 +55,41 @@ export default {
         animation: false
       }
     })
-    console.log(NEAT)
     this.neat = new NEAT.Neat(
       36,
-      4, // STEER, FORWARD, BACKWARDS, BREAK
+      6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
         popsize: 16,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 1,
-        mutationRate: 0.2
+        mutationRate: 0.3
       }
     )
 
     console.log('Loading assets')
     const t = this
     const afterLoad = function () {
-      console.log('Loaded')
-      document.onkeypress = function (e) {
-        if (e.keyCode === 32) {
-          t.$children.forEach(function (container) {
-            container.simulation.renderer.draw = !container.simulation.renderer.draw
-          })
-        }
-      }
+      $('#fastForward').click(function () {
+        t.$children.forEach(function (container) {
+          container.simulation.renderer.draw = !container.simulation.renderer.draw
+        })
+      })
       let start = null
       function update (timestamp) {
         if (!start) start = timestamp
         let dt = timestamp - start
-        if (dt >= 500) dt = 1000 / 60.0
+        if (dt < 1000 / 30.0) {
+          window.requestAnimationFrame(update)
+          return
+        }
+        dt = 1000 / 30.0
         start = timestamp
         dt = dt / 1000
         let tmp = start
         t.$children.forEach((container) => {
           if (!container.simulation.renderer.draw) {
-            dt = 1000 / 60
-            dt = dt / 1000
             let interval = container.simulation.time - container.simulation.acc
-            while (interval >= 0) {
+            while (interval >= 0 && !container.simulation.renderer.draw) {
               interval -= dt
               tmp += dt
               container.simulation.update(dt)
@@ -154,7 +158,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 8
+      numberOfEvaluators: 16
     }
   }
 }
