@@ -1,11 +1,14 @@
 <template>
   <div class="hello">
     <canvas id="chart"></canvas>
+    <div>
+      <progress id="numberOfChunks"></progress>
+    </div>
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
     </span>
-    <div>
-      <button id="fastForward">FastForward</button>
+    <div id="fastForward">
+      <img src="static/fast_forward_off.png"/>
     </div>
   </div>
 </template>
@@ -60,9 +63,9 @@ export default {
       6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 16,
+        popsize: 128,
         mutation: NEAT.methods.mutation.ALL,
-        mutationRate: 0.3
+        mutationRate: 0.2
       }
     )
 
@@ -70,6 +73,10 @@ export default {
     const t = this
     const afterLoad = function () {
       $('#fastForward').click(function () {
+
+        $('#fastForward img').attr('src',
+          $('#fastForward img').attr('src') === 'static/fast_forward_on.png' ?
+            'static/fast_forward_off.png' : 'static/fast_forward_on.png')
         t.$children.forEach(function (container) {
           container.simulation.renderer.draw = !container.simulation.renderer.draw
         })
@@ -107,11 +114,16 @@ export default {
         function (next) {
           // Split to chunks
           const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
+          let progressBar = $('#numberOfChunks')
+
+          progressBar.attr('max', neat.population.length)
+          progressBar.attr('value', 0)
           ASYNC.eachOf(chunks,
             async function (chunk, index, callback) {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
                 chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+                progressBar.attr('value', parseInt(progressBar.attr('value'), 10) + 1)
                 chunk[i].score -= chunk[i].nodes.length * 100
               }
               callback()

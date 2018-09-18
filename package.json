@@ -34,7 +34,8 @@
     "retyped-pixi.js-tsd-ambient": "^3.0.9-0",
     "sigma": "^1.2.1",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "jquery": "latest"
   },
   "devDependencies": {
     "autoprefixer": "^8.6.3",
