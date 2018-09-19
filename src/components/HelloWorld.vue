@@ -2,7 +2,7 @@
   <div class="hello">
     <canvas id="chart"></canvas>
     <div>
-      <progress id="numberOfChunks"></progress>
+      <progress id="progressBar"></progress>
     </div>
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
@@ -73,10 +73,9 @@ export default {
     const t = this
     const afterLoad = function () {
       $('#fastForward').click(function () {
-
         $('#fastForward img').attr('src',
-          $('#fastForward img').attr('src') === 'static/fast_forward_on.png' ?
-            'static/fast_forward_off.png' : 'static/fast_forward_on.png')
+          $('#fastForward img').attr('src') === 'static/fast_forward_on.png'
+            ? 'static/fast_forward_off.png' : 'static/fast_forward_on.png')
         t.$children.forEach(function (container) {
           container.simulation.renderer.draw = !container.simulation.renderer.draw
         })
@@ -114,7 +113,7 @@ export default {
         function (next) {
           // Split to chunks
           const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
-          let progressBar = $('#numberOfChunks')
+          let progressBar = $('#progressBar')
 
           progressBar.attr('max', neat.population.length)
           progressBar.attr('value', 0)
@@ -191,6 +190,9 @@ li {
 }
 a {
   color: #42b983;
+}
+#progressBar {
+  width: 100%;
 }
 #chart {
   display:block;
