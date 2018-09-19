@@ -68,7 +68,6 @@ export default {
         mutationRate: 0.2
       }
     )
-
     console.log('Loading assets')
     const t = this
     const afterLoad = function () {
@@ -159,6 +158,7 @@ export default {
         }
       )
     }
+
 
     PIXI.loader.onComplete.add(afterLoad)
 
