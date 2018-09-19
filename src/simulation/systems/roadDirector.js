@@ -11,7 +11,7 @@ function getDirection (x, y, w, h) {
   return 'onScreen'
 }
 
-const STARTING_PIECE = 'Cross'
+const STARTING_PIECE = '-'
 
 export default CES.System.extend({
   setWorld: function (world) {
@@ -19,6 +19,16 @@ export default CES.System.extend({
     this.rng = new Chance('RNG0,0')
     this.position = [0, 0]
     this.parts = {
+      '-': {
+        'group': RoadPart(0, 0, this.world, [
+          Wall(0, 250, 8000, 20, this.world),
+          Wall(0, 550, 8000, 20, this.world)
+        ]),
+        'possibleParts': {
+          'left': ['Cross', 'T'],
+          'right': ['Cross', 'T']
+        }
+      },
       'I': {
         'group': RoadPart(0, 0, this.world, [
           Wall(250, 0, 20, 8000, this.world),
@@ -61,6 +71,16 @@ export default CES.System.extend({
           'left': ['Cross', 'T'],
           'right': ['Cross', 'T']
         }
+      },
+      'Box': {
+        'group': RoadPart(0, 0, this.world, [
+          Wall(400, 0, 800, 20, this.world),
+          Wall(0, 400, 20, 800, this.world),
+          Wall(800, 400, 20, 800, this.world),
+          Wall(400, 800, 800, 20, this.world)
+        ]),
+        'possibleParts': {
+        }
       }
     }
     Object.keys(this.parts).forEach((key) => {
@@ -90,18 +110,18 @@ export default CES.System.extend({
     if (this.currentPart === undefined) return
     let possiblePieces = this.currentPart['possibleParts'][direction]
     if (possiblePieces.length === 0) return
+    if (direction === 'up') this.position[1] += 1
+    if (direction === 'down') this.position[1] -= 1
+    if (direction === 'left') this.position[0] -= 1
+    if (direction === 'right') this.position[0] += 1
     this.currentPart['group'].moveAbsolute(50000, 50000)
+    this.rng = new Chance('RNG' + this.position[0] + ',' + this.position[1])
     if (this.position[0] === 0 && this.position[1] === 0) {
       this.currentPart = this.parts[STARTING_PIECE]
     } else {
       this.currentPart = this.parts[this.rng.pickone(possiblePieces)]
     }
     this.currentPart['group'].moveAbsolute(0, 0)
-    if (direction === 'up') this.position[1] += 1
-    if (direction === 'down') this.position[1] -= 1
-    if (direction === 'left') this.position[0] -= 1
-    if (direction === 'right') this.position[0] += 1
-    this.rng = new Chance('RNG' + this.position[0] + ',' + this.position[1])
     this.moveCarBackToScreen(direction)
   },
   moveCarBackToScreen: function (direction) {

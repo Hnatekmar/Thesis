@@ -6,37 +6,42 @@ export class Sensor {
     this.endPoint = endPoint
     this.world = world
     this.shortest = null
-  }
-  cast (origin, ignoredIDs, rotation) {
-    this.rotatedEndPoint = [0, 0]
-    p2.vec2.rotate(this.rotatedEndPoint, this.endPoint, rotation)
-    const destination = [0, 0]
-    p2.vec2.add(destination, origin, p2.vec2.mul([0, 0], this.rotatedEndPoint, [1000, 1000]))
-    this.calculateShortest(origin, destination, ignoredIDs)
-  }
-
-  calculateShortest (origin, destination, ignoredIDs) {
+    this.endPoint[0] *= 800
+    this.endPoint[1] *= 800
+    let t = this
     this.shortest = {
       distance: Infinity
     }
-    let t = this
-    let ray = new p2.Ray({
+    this.ray = new p2.Ray({
       mode: p2.Ray.ALL,
-      from: origin,
-      to: destination,
+      from: t.origin,
+      to: t.endPoint,
       callback: (result) => {
-        if (ignoredIDs.includes(result.body.id)) return
-        let hitPoint = p2.vec2.create()
-        result.getHitPoint(hitPoint, ray)
-        let distance = result.getHitDistance(ray)
+        if (t.ignoredIDs.includes(result.body.id)) return
+        let distance = result.getHitDistance(t.ray)
         if (distance < this.shortest.distance) {
           t.shortest.distance = distance
           t.shortest.body = result.body
         }
       }
     })
-    ray.update()
+  }
+  cast (origin, ignoredIDs, rotation) {
+    let rotatedEndPoint = [0, 0]
+    p2.vec2.rotate(rotatedEndPoint, this.endPoint, rotation)
+    const destination = [0, 0]
+    destination[0] = origin[0] + rotatedEndPoint[0]
+    destination[1] = origin[1] + rotatedEndPoint[1]
+    this.ignoredIDs = ignoredIDs
+    this.calculateShortest(origin, destination)
+  }
+
+  calculateShortest (origin, destination) {
+    this.ray.from = origin
+    this.ray.to = destination
+    this.ray.update()
     let result = new p2.RaycastResult()
-    this.world.raycast(result, ray)
+    this.world.raycast(result, this.ray)
+
   }
 }

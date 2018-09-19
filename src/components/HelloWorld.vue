@@ -1,9 +1,15 @@
 <template>
   <div class="hello">
     <canvas id="chart"></canvas>
+    <div>
+      <progress id="progressBar"></progress>
+    </div>
     <span v-for="n in numberOfEvaluators" :key="n">
       <simulation :id="n"></simulation>
     </span>
+    <div id="fastForward">
+      <img src="static/fast_forward_off.png"/>
+    </div>
   </div>
 </template>
 
@@ -15,6 +21,7 @@ import ASYNC from 'async'
 import _ from 'lodash'
 import * as PIXI from 'pixi.js'
 import * as Chart from 'chart.js'
+import * as $ from 'jquery'
 
 export default {
   name: 'HelloWorld',
@@ -26,18 +33,21 @@ export default {
       data: {
         datasets: [{
           label: 'Best Fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(0,255,0,0.8)',
           borderColor: 'rgba(0,255,0,0.8)',
           fill: false
         }, {
           label: 'Avg. fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(0,0,255,0.8)',
           borderColor: 'rgba(0,0,255,0.8)',
           fill: false
         }, {
           label: 'Worst fitness',
+          lineTension: 0,
           data: [],
           backgroundColor: 'rgba(255,0,0,0.8)',
           borderColor: 'rgba(255,0,0,0.8)',
@@ -48,38 +58,70 @@ export default {
         animation: false
       }
     })
-
     this.neat = new NEAT.Neat(
-      72,
-      4, // STEER, FORWARD, BACKWARDS, BREAK
+      36,
+      6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 8,
+        popsize: 128,
         mutation: NEAT.methods.mutation.ALL,
-        elitism: 0,
-        mutationRate: 0.3
+        mutationRate: 0.2
       }
     )
-    console.log(NEAT)
-
     console.log('Loading assets')
     const t = this
     const afterLoad = function () {
-      console.log('Loaded')
-      function update (dt) {
-        t.$children.forEach((container) => container.simulation.update(dt))
+      $('#fastForward').click(function () {
+        $('#fastForward img').attr('src',
+          $('#fastForward img').attr('src') === 'static/fast_forward_on.png'
+            ? 'static/fast_forward_off.png' : 'static/fast_forward_on.png')
+        t.$children.forEach(function (container) {
+          container.simulation.renderer.draw = !container.simulation.renderer.draw
+        })
+      })
+      let start = null
+      function update (timestamp) {
+        if (!start) start = timestamp
+        let dt = timestamp - start
+        if (dt < 1000 / 30.0) {
+          window.requestAnimationFrame(update)
+          return
+        }
+        dt = 1000 / 30.0
+        start = timestamp
+        dt = dt / 1000
+        let tmp = start
+        t.$children.forEach((container) => {
+          if (!container.simulation.renderer.draw) {
+            let interval = container.simulation.time - container.simulation.acc
+            while (interval >= 0 && !container.simulation.renderer.draw) {
+              interval -= dt
+              tmp += dt
+              container.simulation.update(dt)
+            }
+          } else {
+            container.simulation.update(dt)
+          }
+        })
+        start = tmp
+        window.requestAnimationFrame(update)
       }
-      setInterval(() => update(1000.0 / 60), 1000.0 / 60)
+      window.requestAnimationFrame(update)
       const neat = t.neat
       ASYNC.forever(
         function (next) {
           // Split to chunks
           const chunks = _.toArray(_.chunk(neat.population, neat.population.length / t.$children.length))
+          let progressBar = $('#progressBar')
+
+          progressBar.attr('max', neat.population.length)
+          progressBar.attr('value', 0)
           ASYNC.eachOf(chunks,
             async function (chunk, index, callback) {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
                 chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+                progressBar.attr('value', parseInt(progressBar.attr('value'), 10) + 1)
                 chunk[i].score -= chunk[i].nodes.length * 100
               }
               callback()
@@ -117,6 +159,7 @@ export default {
       )
     }
 
+
     PIXI.loader.onComplete.add(afterLoad)
 
     PIXI.loader
@@ -126,7 +169,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 8
+      numberOfEvaluators: 16
     }
   }
 }
@@ -147,6 +190,9 @@ li {
 }
 a {
   color: #42b983;
+}
+#progressBar {
+  width: 100%;
 }
 #chart {
   display:block;

@@ -12,6 +12,7 @@ export default CES.System.extend({
       height: 800
     })
     this.canvas = canvas
+    this.renderer.ticker.stop()
   },
   addedToWorld: function (world) {
     world.entityAdded('graphics').add((entity) => {
@@ -31,8 +32,8 @@ export default CES.System.extend({
     )
   },
   update: function (dt) {
-    if (this.isVisible()) {
-      this.renderer.render()
+    if (this.draw) {
+      this.renderer.ticker.update()
     }
   }
 })

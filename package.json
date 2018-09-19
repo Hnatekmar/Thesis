@@ -27,13 +27,15 @@
     "memorypool": "^1.0.0",
     "neataptic": "^1.4.7",
     "p2": "^0.7.1",
+    "paralleljs": "^0.2.1",
     "pixi.js": "^4.8.1",
     "planck-js": "^0.1.44",
     "polyk": "^0.24.0",
     "retyped-pixi.js-tsd-ambient": "^3.0.9-0",
     "sigma": "^1.2.1",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "jquery": "latest"
   },
   "devDependencies": {
     "autoprefixer": "^8.6.3",
