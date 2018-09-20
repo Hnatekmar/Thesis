@@ -11,7 +11,7 @@ function getDirection (x, y, w, h) {
   return 'onScreen'
 }
 
-const STARTING_PIECE = '-'
+const STARTING_PIECE = 'Box'
 
 export default CES.System.extend({
   setWorld: function (world) {

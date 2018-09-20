@@ -63,9 +63,14 @@ export default {
       6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 1024,
+        popsize: 64,
         mutation: NEAT.methods.mutation.ALL,
-        mutationRate: 0.2
+        mutationRate: 0.3,
+        network: new NEAT.architect.Random(
+          36,
+          128,
+          6
+        )
       }
     )
     console.log('Loading assets')
@@ -169,7 +174,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 2
+      numberOfEvaluators: 8
     }
   }
 }
