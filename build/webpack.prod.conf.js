@@ -9,7 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const UglifyJsPlugin = require('webpack/node_modules/uglifyjs-webpack-plugin')
 // const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const env = process.env.NODE_ENV === 'testing'
@@ -32,8 +32,12 @@ const webpackConfig = merge(baseWebpackConfig, {
   },
   mode: 'production',
   optimization: {
-    namedModules: true,
+    namedModules: false,
+    removeEmptyChunks: true,
+    removeAvailableModules: true,
+    mangleWasmImports: true,
     runtimeChunk: "single", // enable "runtime" chunk
+    minimizer: [new UglifyJsPlugin()],
     splitChunks: {
       cacheGroups: {
         vendor: {

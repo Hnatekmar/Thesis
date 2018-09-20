@@ -14,6 +14,7 @@ export default {
 
 <style scoped>
 .screen {
+  will-change: transform;
   width: 20%;
   height: 20%;
   border-style: ridge;

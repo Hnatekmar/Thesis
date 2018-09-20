@@ -63,7 +63,7 @@ export default {
       6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 128,
+        popsize: 1024,
         mutation: NEAT.methods.mutation.ALL,
         mutationRate: 0.2
       }
@@ -169,7 +169,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 16
+      numberOfEvaluators: 2
     }
   }
 }
@@ -193,8 +193,10 @@ a {
 }
 #progressBar {
   width: 100%;
+  will-change: transform;
 }
 #chart {
+  will-change: transform;
   display:block;
   margin-left:auto;
   margin-right:auto;
