@@ -175,7 +175,6 @@ export default {
       )
     }
 
-
     PIXI.loader.onComplete.add(afterLoad)
 
     PIXI.loader

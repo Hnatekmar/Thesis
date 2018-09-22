@@ -42,6 +42,5 @@ export class Sensor {
     this.ray.update()
     let result = new p2.RaycastResult()
     this.world.raycast(result, this.ray)
-
   }
 }
