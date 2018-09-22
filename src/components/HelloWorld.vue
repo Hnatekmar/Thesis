@@ -59,7 +59,7 @@ export default {
       }
     })
     this.neat = new NEAT.Neat(
-      36,
+      37,
       6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
@@ -67,12 +67,18 @@ export default {
         mutation: NEAT.methods.mutation.ALL,
         mutationRate: 0.3,
         network: new NEAT.architect.Random(
-          36,
+          37,
           128,
           6
         )
       }
     )
+    let best = localStorage.getItem('best')
+    if (best !== null) {
+      best = JSON.parse(best)
+      this.neat.population[0] = NEAT.Network.fromJSON(best)
+    }
+
     console.log('Loading assets')
     const t = this
     const afterLoad = function () {
@@ -151,6 +157,11 @@ export default {
               // Breed the next individuals
               for (let i = 0; i < neat.popsize - neat.elitism; i++) {
                 newPopulation.push(neat.getOffspring())
+              }
+              let fittest = neat.getFittest()
+              let best = window.localStorage.getItem('best')
+              if (best === null || fittest.score >= best.score) {
+                window.localStorage.setItem('best', JSON.stringify(fittest.toJSON()))
               }
               delete neat.population
               // Replace the old population with the new population

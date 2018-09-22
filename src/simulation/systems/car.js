@@ -36,7 +36,7 @@ export default CES.System.extend({
 
       if (this.input === undefined) {
         this.input = []
-        for (let i = 0; i < body.sensors.length; i++) {
+        for (let i = 0; i <= body.sensors.length; i++) {
           this.input.push(0)
         }
         body.backWheel.setBrakeForce(0)
@@ -52,6 +52,7 @@ export default CES.System.extend({
         body.sensors[i].shortest.distance /= 800.0
         this.input[i] = body.sensors[i].shortest.distance
       }
+      this.input[body.sensors.length - 1] = pb.angle
       let vel = Math.sqrt(p2.vec2.squaredLength(pb.velocity))
       if (vel === 0 && body.fitness !== 0) {
         pb.allowSleep = true
@@ -101,7 +102,7 @@ export default CES.System.extend({
           body.frontWheel.steerValue += (Math.PI / 180.0) * 10
         }
       }
-      body.backWheel.engineForce = dir * 7 * 9000 * 2
+      body.backWheel.engineForce = dir * 7 * 9000
     })
   }
 })
