@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Simulation from '../simulation/main.js'
+import Simulation from 'thesis-simulation'
 export default {
   name: 'Simulation',
   mounted: function () {
