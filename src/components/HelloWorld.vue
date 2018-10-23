@@ -63,14 +63,9 @@ export default {
       6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
       null,
       {
-        popsize: 64,
+        popsize: 128,
         mutation: NEAT.methods.mutation.ALL,
-        mutationRate: 0.3,
-        network: new NEAT.architect.Random(
-          37,
-          128,
-          6
-        )
+        mutationRate: 0.2
       }
     )
     let best = localStorage.getItem('best')
@@ -148,6 +143,7 @@ export default {
               let avg = neat.population.reduce((acc, el) => acc + el.score, 0.0) / neat.population.length
               t.chart.data.datasets[1].data.push(avg)
               t.chart.data.datasets[2].data.push(neat.population[neat.population.length - 1].score)
+              console.log(neat.population[0].score)
               t.chart.update()
               // Elitism
               for (let i = 0; i < neat.elitism; i++) {

@@ -3,11 +3,11 @@
 </template>
 
 <script>
-import Simulation from 'thesis-simulation'
+import SimulationEngine from 'thesis-simulation'
 export default {
   name: 'Simulation',
   mounted: function () {
-    this.simulation = new Simulation(this.$el, 60)
+    this.simulation = new SimulationEngine(60, this.$el)
   }
 }
 </script>

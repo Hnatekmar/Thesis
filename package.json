@@ -17,6 +17,7 @@
     "async": "^2.6.1",
     "canvas": "^1.6.10",
     "canvas-prebuilt": "^1.6.5-prerelease.1",
+    "ccapture.js": "aceslowman/ccapture.js#npm-fix",
     "chart.js": "^2.7.2",
     "clean-webpack-plugin": "^0.1.19",
     "jquery": "latest",
