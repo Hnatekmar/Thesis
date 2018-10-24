@@ -5,6 +5,7 @@
     </textarea>
     <button id="playButton">Play</button>
     <hr/>
+    <canvas id = 'chart'></canvas>
     <canvas id = 'player'></canvas>
   </div>
 </template>
@@ -12,9 +13,27 @@
 <script>
 import * as PIXI from 'pixi.js'
 import NEAT from 'neataptic'
-import * as CCapture from 'ccapture.js'
-console.log(CCapture)
+import * as Chart from 'chart.js'
 const Simulation = require('thesis-simulation').default
+
+function initChart () {
+  let chartCanvas = document.getElementById('chart').getContext('2d')
+  let chart = new Chart(chartCanvas, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'fitness',
+        data: []
+      }]
+    },
+    options: {
+      animation: false
+    }
+  })
+  return chart
+}
+
 export default {
   name: 'Player',
   mounted: function () {
@@ -25,26 +44,32 @@ export default {
         .add('./static/wheel.png')
         .load()
     }
+    this.chart = initChart()
     this.simulation = new Simulation(60, document.getElementById('player'))
     let t = this
     document.getElementById('playButton').onclick = function () {
       let json = JSON.parse(document.getElementById('jsonInput').value)
       let genome = NEAT.Network.fromJSON(json)
       let running = true
-      t.simulation.evaluate(genome).then(() => running = false)
-
+      t.simulation.evaluate(genome).then(function () {
+        running = false
+      })
+      t.chart.data.datasets[0].data = []
+      t.chart.data.labels = []
       let acc = 0
       function update (dt) {
         if (!running) return
         acc += dt
         if (acc > 1 / 30.0) {
           t.simulation.update(1 / 30.0)
+          acc = 0
+          t.chart.data.datasets[0].data.push(t.simulation.car.getComponent('car').fitness)
+          t.chart.data.labels.push(t.chart.data.datasets[0].data.length)
+          t.chart.update()
         }
         window.requestAnimationFrame(update)
       }
-      window.requestAnimationFrame(
-        update
-      )
+      window.requestAnimationFrame(update)
     }
   }
 }
@@ -56,7 +81,7 @@ export default {
     height: 100%;
     resize: none;
   }
-  canvas {
+  #player {
     width: 800px;
     height: 800px;
     background-color: black;
