@@ -74,7 +74,6 @@ export default {
       this.neat.population[0] = NEAT.Network.fromJSON(best)
     }
 
-    console.log('Loading assets')
     const t = this
     const afterLoad = function () {
       $('#fastForward').click(function () {
@@ -154,12 +153,6 @@ export default {
               for (let i = 0; i < neat.popsize - neat.elitism; i++) {
                 newPopulation.push(neat.getOffspring())
               }
-              let fittest = neat.getFittest()
-              let best = window.localStorage.getItem('best')
-              if (best === null || fittest.score >= best.score) {
-                window.localStorage.setItem('best', JSON.stringify(fittest.toJSON()))
-              }
-              delete neat.population
               // Replace the old population with the new population
               neat.population = newPopulation
               neat.mutate()
@@ -171,12 +164,12 @@ export default {
       )
     }
 
-    PIXI.loader.onComplete.add(afterLoad)
-
+    console.log('Loading assets')
     PIXI.loader
       .add('./static/chassis.png')
       .add('./static/wheel.png')
       .load()
+    PIXI.loader.onComplete.add(afterLoad)
   },
   data () {
     return {
@@ -188,29 +181,29 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-#progressBar {
-  width: 100%;
-  will-change: transform;
-}
-#chart {
-  will-change: transform;
-  display:block;
-  margin-left:auto;
-  margin-right:auto;
-  width: 90%;
-}
+  h1, h2 {
+    font-weight: normal;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  a {
+    color: #42b983;
+  }
+  #progressBar {
+    width: 100%;
+    will-change: transform;
+  }
+  #chart {
+    will-change: transform;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    width: 90%;
+  }
 </style>

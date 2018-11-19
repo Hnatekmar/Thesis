@@ -9019,7 +9019,7 @@ text-table@^0.2.0, text-table@~0.2.0:
 
 "thesis-simulation@git://github.com/Hnatekmar/simulation.git":
   version "1.0.0"
-  resolved "git://github.com/Hnatekmar/simulation.git#18e7606673fa0fc72ad167ea0ad1567b516d975b"
+  resolved "git://github.com/Hnatekmar/simulation.git#1c1935b1ae4b7330d138ac29bddcc0085eddff63"
   dependencies:
     canvas "^1.6.12"
     ces "0.0.4"

@@ -28,7 +28,7 @@
     "pixi.js": "^4.8.2",
     "planck-js": "^0.1.44",
     "retyped-pixi.js-tsd-ambient": "^3.0.9-0",
-    "thesis-simulation": "git://github.com/Hnatekmar/simulation.git",
+    "simulation": "git://github.com/Hnatekmar/simulation.git",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

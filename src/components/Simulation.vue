@@ -4,10 +4,11 @@
 
 <script>
 import SimulationEngine from 'thesis-simulation'
+import * as PIXI from 'pixi.js'
 export default {
   name: 'Simulation',
   mounted: function () {
-    this.simulation = new SimulationEngine(60, this.$el)
+    this.simulation = new SimulationEngine(60, this.$el, PIXI.loader)
   }
 }
 </script>
@@ -19,9 +20,5 @@ export default {
   height: 20%;
   border-style: ridge;
   border-width: 1px;
-}
-.visualization {
-  width: 200px;
-  height: 200px;
 }
 </style>
