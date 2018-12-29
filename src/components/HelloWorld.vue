@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+
     <canvas id="chart"></canvas>
     <div>
       <progress id="progressBar"></progress>
@@ -59,20 +60,15 @@ export default {
       }
     })
     this.neat = new NEAT.Neat(
-      37,
-      6, // LEFT, RIGHT, FORWARD, BACKWARDS, BREAK
+      6,
+      4,
       null,
       {
-        popsize: 128,
+        popsize: 4,
         mutation: NEAT.methods.mutation.ALL,
-        mutationRate: 0.2
+        mutationRate: 0.30
       }
     )
-    let best = localStorage.getItem('best')
-    if (best !== null) {
-      best = JSON.parse(best)
-      this.neat.population[0] = NEAT.Network.fromJSON(best)
-    }
 
     const t = this
     const afterLoad = function () {
@@ -88,21 +84,21 @@ export default {
       function update (timestamp) {
         if (!start) start = timestamp
         let dt = timestamp - start
-        if (dt < 1000 / 30.0) {
-          window.requestAnimationFrame(update)
-          return
-        }
-        dt = 1000 / 30.0
         start = timestamp
         dt = dt / 1000
         let tmp = start
         t.$children.forEach((container) => {
           if (!container.simulation.renderer.draw) {
             let interval = container.simulation.time - container.simulation.acc
+            let frames = 0
             while (interval >= 0 && !container.simulation.renderer.draw) {
               interval -= dt
               tmp += dt
               container.simulation.update(dt)
+              frames++
+              if (frames >= 500) {
+                break
+              }
             }
           } else {
             container.simulation.update(dt)
@@ -125,9 +121,8 @@ export default {
             async function (chunk, index, callback) {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
-                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i])
+                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i], 'inverted upside L')
                 progressBar.attr('value', parseInt(progressBar.attr('value'), 10) + 1)
-                chunk[i].score -= chunk[i].nodes.length * 100
               }
               callback()
             },
@@ -173,7 +168,7 @@ export default {
   },
   data () {
     return {
-      numberOfEvaluators: 8
+      numberOfEvaluators: 4
     }
   }
 }
