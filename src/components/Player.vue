@@ -52,6 +52,7 @@ export default {
       running = true
       let json = JSON.parse(document.getElementById('jsonInput').value)
       let genome = NEAT.Network.fromJSON(json)
+      t.simulation.positions = json.positions
       t.simulation.evaluate(genome, json.piece).then(function () {
         running = false
         i = 0
@@ -61,6 +62,10 @@ export default {
     }
     function update () {
       if (!running) return
+      let info = t.simulation.positions.shift()
+      let body = t.simulation.car.getComponent('physics').body
+      body.position = [info[0], info[1]]
+      body.angle = info[2]
       i += 1
       t.simulation.update(1 / 60.0)
       if (i % 60 === 0) {
