@@ -64,7 +64,7 @@ export default {
       4,
       null,
       {
-        popsize: 4,
+        popsize: 20,
         mutation: NEAT.methods.mutation.ALL,
         mutationRate: 0.30
       }
@@ -96,7 +96,7 @@ export default {
               tmp += dt
               container.simulation.update(dt)
               frames++
-              if (frames >= 500) {
+              if (frames >= 10) {
                 break
               }
             }
@@ -121,8 +121,8 @@ export default {
             async function (chunk, index, callback) {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
-                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i], 'inverted upside L')
-                progressBar.attr('value', parseInt(progressBar.attr('value'), 10) + 1)
+                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i], 'I basic')
+                progressBar.attr('value', parseInt(progressBar.attr('value')) + 1)
               }
               callback()
             },
