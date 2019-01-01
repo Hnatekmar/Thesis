@@ -121,7 +121,7 @@ export default {
             async function (chunk, index, callback) {
               for (let i in chunk) {
                 // noinspection JSUnfilteredForInLoop
-                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i], 'I basic')
+                chunk[i].score = await t.$children[index].simulation.evaluate(chunk[i], 'I advanced right', {holdWheel: true})
                 progressBar.attr('value', parseInt(progressBar.attr('value')) + 1)
               }
               callback()
