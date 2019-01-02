@@ -44,7 +44,7 @@ export default {
       .add('./static/wheel.png')
       .load()
     this.chart = initChart()
-    this.simulation = new Simulation(60, document.getElementById('player'), PIXI.loader)
+    this.simulation = new Simulation(120, document.getElementById('player'), PIXI.loader)
     let t = this
     let running = false
     let i = 0

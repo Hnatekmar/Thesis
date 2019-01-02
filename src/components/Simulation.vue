@@ -8,7 +8,7 @@ import * as PIXI from 'pixi.js'
 export default {
   name: 'Simulation',
   mounted: function () {
-    this.simulation = new SimulationEngine(60, this.$el, PIXI.loader)
+    this.simulation = new SimulationEngine(120, this.$el, PIXI.loader)
   }
 }
 </script>
