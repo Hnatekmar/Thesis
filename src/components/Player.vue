@@ -18,7 +18,7 @@ const Simulation = require('thesis-simulation').default
 
 function initChart () {
   let chartCanvas = document.getElementById('chart').getContext('2d')
-  let chart = new Chart(chartCanvas, {
+  return new Chart(chartCanvas, {
     type: 'line',
     data: {
       labels: [],
@@ -31,7 +31,6 @@ function initChart () {
       animation: false
     }
   })
-  return chart
 }
 
 PIXI.loader
@@ -43,19 +42,23 @@ export default {
   name: 'Player',
   mounted: function () {
     this.chart = initChart()
-    this.simulation = new Simulation(120, document.getElementById('player'), PIXI.loader)
+    this.simulation = new Simulation(1000, document.getElementById('player'), PIXI.loader)
     let t = this
     let running = false
     let i = 0
+    let interval = null
     document.getElementById('playButton').onclick = function () {
       running = true
+      clearInterval(interval)
       let json = JSON.parse(document.getElementById('jsonInput').value)
       let genome = NEAT.Network.fromJSON(json)
       t.simulation.positions = json.positions
       t.simulation.evaluate(genome, json.piece, {player: true, piece: json.piece, fitness: 0}).then(function () {
         running = false
         i = 0
+        clearInterval(interval)
       })
+      interval = setInterval(update, 16)
       t.chart.data.datasets[0].data = []
       t.chart.data.labels = []
     }
@@ -71,13 +74,12 @@ export default {
       carComponent.options.piece = info.piece
       i += 1
       t.simulation.update(1 / 60.0)
-      if (i % 60 === 0) {
+      if (i % 60 === 0 || t.simulation.positions.length === 0) {
         t.chart.data.datasets[0].data.push(info.fitness)
         t.chart.data.labels.push(t.chart.data.datasets[0].data.length)
         t.chart.update()
       }
     }
-    setInterval(update, 16)
   }
 }
 </script>
